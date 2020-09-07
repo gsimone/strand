@@ -29,10 +29,13 @@ export default function Connector({ node, field, direction }) {
   const { input, connecting, output } = connectionState
 
   // disable a connection when one the same direction is set
-  const disabled = (input || output)?.node === node || (input && direction === "input") || (output && direction === "output")
+  const disabled = (input || output)?.node === node
   const active = (direction === "input" && input?.field === field) || (direction === "output" && output?.field === field)
 
-  const candidate = connecting && !disabled && !active && (input || output).node !== node
+  /**
+   * The node is a candidate if we are connecting and it's not disabled 
+   */
+  const candidate = connecting && !disabled && (input || output).node !== node
 
   const handleClick = useCallback((field, direction) => {
 
@@ -78,12 +81,11 @@ export default function Connector({ node, field, direction }) {
           bg-gray-700 
         `,
           disabled && `
-            opacity-50
             cursor-not-allowed
           `, 
           active && `
-            border-orange-400
-            bg-orange-400
+            border-orange-300
+            bg-orange-300
           `,
           candidate && `
             border-blue-600

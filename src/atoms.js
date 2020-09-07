@@ -17,6 +17,8 @@ export const nodesAtom = atom([
   createNodeAtom({ id: 2, name: "Another Node", position: [400, 100]})
 ])
 
+export const connectorsAtom = atom({})
+
 export const connectionsAtom = atom([])
 
 export function createConnection(input, output) {

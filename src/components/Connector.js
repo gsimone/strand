@@ -1,48 +1,57 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { useAtom } from 'jotai'
 import clsx from 'clsx'
 
-import { connectionStateAtom, connectionsAtom, createConnection } from '../atoms'
+import { connectionStateAtom, connectionsAtom, connectorsAtom, createConnection } from '../atoms'
 import produce from 'immer';
 
-export default function Connector({ node, parent, direction }) {
+export default function Connector({ node, field, direction }) {
+  const connectorRef = useRef()
   const [{ connecting, input, output }, setConnectionState] = useAtom(connectionStateAtom);
   const [, setConnections] = useAtom(connectionsAtom)
+  const [, setConnectors] = useAtom(connectorsAtom)
 
+  /**
+   * Register the connector ref, will be used to draw the connection lines
+   */
+  useEffect(() => {
+
+    setConnectors(produce(connectors => {
+      connectors[`${node}-${field}-${direction}`] = connectorRef
+    }))
+    
+  }, [direction, node, field, setConnectors])
+  
   const disabled = (input && direction === "input") || (output && direction === "output")
-  const active = (input === parent)
-  const handleClick = useCallback((parent, direction) => {
+  const active = (input === field)
+
+  const handleClick = useCallback((field, direction) => {
 
     if (disabled) return
-    if (input === parent) return
+    if (input === field) return
     
+    /**
+     * If we are already connecting, close a connection
+     */
     if (connecting === true) {
 
-      if (direction === "input") {
-        setConnections(connections => ([
-          ...connections,
-          createConnection({ field: parent, node }, output)
-        ]))
-      }  else {
-        setConnections(produce(connections => {
-          connections.push(createConnection(input, {field: parent, node}))
-        }))
-      }
+      setConnections(produce(connections => {
+        const connection = direction === "input" ? createConnection({ field, node}, output) : createConnection(input, {field, node})
+        connections.push(connection)
+      }))
       
-      // we reset state 
       setConnectionState({ connecting: false })
     } else {
+      // Otherwise start a new connection and set the input/output
 
       setConnectionState(produce(draft => {
         draft.connecting = true
-        draft[direction] = { field: parent, node }
+        draft[direction] = { field, node }
       }))
 
     }
     
   }, [connecting, disabled, input, node, output, setConnectionState, setConnections])
-
-  
 
   return (
     <div
@@ -65,8 +74,9 @@ export default function Connector({ node, parent, direction }) {
           `
         )
       }
+      ref={connectorRef}
       onMouseDown={() => { 
-        handleClick(parent, direction)
+        handleClick(field, direction)
       }}
     />
   );

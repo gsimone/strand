@@ -17,7 +17,7 @@ export default function NodePosition({
   const [position, setPosition] = useAtom(positionAtom)
   const offset = useRef<number[]>([]);
 
-  function startMoving(e) {
+  function startMoving(e: MouseEvent) {
     // @ts-ignore
     const { x: originX, y: originY } = nodeRef.current.getBoundingClientRect();
 
@@ -28,7 +28,7 @@ export default function NodePosition({
     window.addEventListener("mouseup", stopMoving);
   }
 
-  function stopMoving(e) {
+  function stopMoving() {
     window.removeEventListener("mousemove", handleMovement);
     window.removeEventListener("mouseup", stopMoving);
   }
@@ -56,6 +56,7 @@ export default function NodePosition({
 
   return (
     <div
+      // @ts-ignore
       onMouseDownCapture={startMoving}
       style={{
         cursor: "grab"

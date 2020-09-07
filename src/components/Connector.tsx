@@ -34,7 +34,7 @@ export default function Connector({ node, field, direction }: ConnectorProps) {
     connectorsRef.current[id] = connectorRef
   }, [direction, node, field])
 
-  const {connecting, origin } = connectionState
+  const { connecting, origin } = connectionState
 
   // disable a connection when one the same direction is set
   const disabled = origin?.node === node || origin?.direction === direction;
@@ -54,30 +54,15 @@ export default function Connector({ node, field, direction }: ConnectorProps) {
      */
     if (connecting === true) {
       setConnectionState({ connecting: false, origin: null })
-      setConnections(produce(connections => {
-        connections.push(createConnection(origin!, {field, node,direction}))
+      setConnections(produce(state => {
+        state.push(createConnection(origin!, {field, node,direction}))
       }))
     }  else {
-      setConnectionState(produce(draft => {
-        draft.connecting = true
-        draft.origin = { field, node, direction }
+      setConnectionState(produce(state => {
+        state.connecting = true
+        state.origin = { field, node, direction }
       }))
     }
-
-      // setConnections(produce(connections => {
-      //   const connection = direction === "input" ? 
-      //     createConnection({ field, node}, output) : 
-      //     createConnection([input, {field, node}])
-      //   connections.push(connection)
-      // }))
-      
-      // setConnectionState({ connecting: false, connectors: [] })
-    // } else {
-      // Otherwise start a new connection and set the input/output
-
-      
-
-    // }
     
   }, [connecting, disabled, node, origin, setConnectionState, setConnections])
 

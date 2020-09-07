@@ -12,7 +12,7 @@ type NodeProps = {
 
 export default function Node({ nodeAtom }: NodeProps) {
   const [{ position, name, fields, id }] = useAtom(nodeAtom);
-  
+
   const nodeRef = React.useRef<HTMLDivElement>(null);
 
   return (

@@ -1,13 +1,19 @@
 import React from "react";
-import { useAtom } from 'jotai'
+import { useAtom, WritableAtom } from 'jotai'
 
 import NodePosition from './NodePosition'
 import Connector from './Connector'
 
-export default function Node({ nodeAtom }) {
+import { Node as NodeType } from '../atoms'
+
+type NodeProps = {
+  nodeAtom: WritableAtom<NodeType, NodeType>
+}
+
+export default function Node({ nodeAtom }: NodeProps) {
   const [{ position, name, fields, id }] = useAtom(nodeAtom);
   
-  const nodeRef = React.useRef();
+  const nodeRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <>

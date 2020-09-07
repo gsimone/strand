@@ -5,26 +5,34 @@ import clsx from 'clsx'
 import { 
   connectionStateAtom, 
   connectionsAtom, 
-  connectorsRef, 
+  connectorsAtom, 
   createConnection,
   makeConnectorId
 } from '../atoms'
 
-
-
 import produce from 'immer';
 
 export default function Connector({ node, field, direction }) {
-  const connectorRef = useRef()
+  const connectorRef = useRef<HTMLDivElement>(null)
   const [connectionState, setConnectionState] = useAtom(connectionStateAtom);
   const [, setConnections] = useAtom(connectionsAtom)
+  const [connectors, setConnectors] = useAtom(connectorsAtom)
 
   /**
    * Register the connector ref, will be used to draw the connection lines
    */
   useEffect(() => {
-    connectorsRef.current[makeConnectorId(node, field, direction)] = connectorRef
-  }, [direction, node, field])
+
+    const id = makeConnectorId(node, field, direction)
+
+    console.log("add new connector ", id)
+    
+    setConnectors(connectors => ({
+      ...connectors,
+      [id]: connectorRef
+    }))
+    
+  }, [direction, node, field, setConnectors])
 
   const { input, connecting, output } = connectionState
 
@@ -52,7 +60,7 @@ export default function Connector({ node, field, direction }) {
         connections.push(connection)
       }))
       
-      setConnectionState({ connecting: false })
+      setConnectionState({ connecting: false, input: undefined, output: undefined })
     } else {
       // Otherwise start a new connection and set the input/output
 

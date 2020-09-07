@@ -1,11 +1,24 @@
-import React, { useCallback,useRef, useEffect } from "react";
-import { useAtom } from 'jotai'
+import React, { useCallback,useRef, useEffect, Ref } from "react";
+import { useAtom, WritableAtom } from 'jotai'
 
-export default function NodePosition({ nodeRef, positionAtom, children }) {
+import { Position } from '../atoms'
+
+type NodePositionProps = {
+  nodeRef: Ref<HTMLDivElement>,
+  positionAtom: WritableAtom<Position, Position>,
+  children: JSX.Element
+}
+
+export default function NodePosition({ 
+  nodeRef, 
+  positionAtom, 
+  children
+}: NodePositionProps) {
   const [position, setPosition] = useAtom(positionAtom)
-  const offset = useRef();
+  const offset = useRef<number[]>([]);
 
   function startMoving(e) {
+    // @ts-ignore
     const { x: originX, y: originY } = nodeRef.current.getBoundingClientRect();
 
     const [relX, relY] = [e.clientX - originX, e.clientY - originY];
@@ -20,7 +33,7 @@ export default function NodePosition({ nodeRef, positionAtom, children }) {
     window.removeEventListener("mouseup", stopMoving);
   }
   
-  const handleMovement = useCallback((e) => {
+  const handleMovement = useCallback((e: MouseEvent) => {
     e.preventDefault();
 
     const [x, y] = [
@@ -30,19 +43,14 @@ export default function NodePosition({ nodeRef, positionAtom, children }) {
 
     setPosition([x,y])
 
-  }, [setPosition]);
+  }, [offset, setPosition]);
   
   useEffect(() => {
 
     const [x,y] = position
 
-    nodeRef.current.style.transform = `
-    translate3d(
-      ${x}px, 
-      ${y}px, 
-      0
-    )
-  `;
+    // @ts-ignore
+    nodeRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
     
   }, [nodeRef, position])
 

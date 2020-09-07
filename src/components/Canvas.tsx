@@ -1,35 +1,28 @@
 
 import { useAtom } from 'jotai';
 import React, {useRef} from 'react' 
-import { connectionsAtom, connectorsRef, makeConnectorId } from '../atoms';
+import { connectionsAtom, connectorsAtom, makeConnectorId } from '../atoms';
 
 const DRAW_INTERVAL = 16;
 
-export default function Canvas({ nodes }) {
+export default function Canvas() {
   const [connections] = useAtom(connectionsAtom)
-  const svg = useRef();
-
+  const [connectors] = useAtom(connectorsAtom)
+  const svg = useRef<SVGSVGElement>(null);
+  
   const draw = React.useCallback(
     function draw() {
       const coords = connections.map(connection => {
-
+        
         const [input, output] = connection 
-        const inputRef = connectorsRef.current[makeConnectorId(input.node, input.field, "input")];
-        const outputRef = connectorsRef.current[makeConnectorId(output.node, output.field, "output")];
+        const inputRef = connectors[makeConnectorId(input.node, input.field, "input")];
+        const outputRef = connectors[makeConnectorId(output.node, output.field, "output")];
 
-        return [inputRef, outputRef]        
-      })
-      .map(connection => {
-        const [fromNode, toNode] = connection
-        
-          const {
-            x,
-            y,
-            width,
-            height,
-          } = fromNode.current.getBoundingClientRect();
-          const { x: bx, y: by } = toNode.current.getBoundingClientRect();
-        
+        // @ts-ignore
+        const { x, y, width, height, } = inputRef.current.getBoundingClientRect();
+        // @ts-ignore
+        const { x: bx, y: by } = outputRef.current.getBoundingClientRect();
+      
         return [
           x + width / 2,
           y + height / 2,
@@ -38,7 +31,7 @@ export default function Canvas({ nodes }) {
         ];
       })
 
-      svg.current.innerHTML = coords
+      svg.current!.innerHTML = coords
         .map(
           ([x, y, x2, y2]) => `
             <path d="
@@ -52,13 +45,13 @@ export default function Canvas({ nodes }) {
         .join("");
       
     },
-    [connections]
+    [connections, connectors]
   );
 
   React.useEffect(() => {
     const interval = setInterval(draw, DRAW_INTERVAL);
     return () => clearInterval(interval);
-  }, [draw, nodes]);
+  }, [draw]);
 
   return (
     <svg
@@ -71,12 +64,10 @@ export default function Canvas({ nodes }) {
         width: "100vw",
         height: "100vw",
         stroke: "white",
-        "stroke-width": 2,
+        strokeWidth: 2,
         fill: "none",
         zIndex: 1,
       }}
-    >
-      
-    </svg>
+    />
   );
 }

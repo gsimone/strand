@@ -12,7 +12,7 @@ function Nodes() {
   const [connections] = useAtom(connectionsAtom)
 
   const onAdd = useCallback(() => {
-    setNodes(state => [ ...state, createNodeAtom(new Date().getTime()) ])
+    setNodes(state => [ ...state, createNodeAtom({ id: new Date().getTime() }) ])
   }, [setNodes])
 
   return (
@@ -25,7 +25,12 @@ function Nodes() {
     <pre>
       {JSON.stringify(connections, null, '  ')}
     </pre>
-    {nodes.map((node) => <Node nodeAtom={node} key={node.id} />)}
+
+    <h3>Nodes</h3>
+    <pre>
+      {JSON.stringify(nodes, null, '  ')}
+    </pre>
+    {nodes.map((node, i) => <Node nodeAtom={node} />)}
     <div>
         {/* eslint-disable-next-line */}
         <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onAdd}> 🆕 Add node</button>

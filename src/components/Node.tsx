@@ -4,7 +4,7 @@ import { useAtom, WritableAtom } from 'jotai'
 import NodePosition from './NodePosition'
 import Connector from './Connector'
 
-import { Node as NodeType } from '../atoms'
+import { ConnectorDirection, Node as NodeType } from '../atoms'
 
 type NodeProps = {
   nodeAtom: WritableAtom<NodeType, NodeType>
@@ -33,12 +33,12 @@ export default function Node({ nodeAtom }: NodeProps) {
           <div className="mt-2 p-2 ">
             {fields.map((field) => (
               <div className="flex space-x-2 items-center group">
-                <Connector node={id} field={field.id} direction="input" />
+                <Connector node={id} field={field.id} direction={ConnectorDirection.input} />
                 <div className="flex-1 mb-2">
                   {field.name}
                   <div className="text-xs text-gray-600">{field.id}</div>
                 </div>
-                <Connector node={id} field={field.id} direction="output" />
+                <Connector node={id} field={field.id} direction={ConnectorDirection.output} />
               </div>
             ))}
           </div>

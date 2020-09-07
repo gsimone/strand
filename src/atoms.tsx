@@ -1,5 +1,5 @@
 import { atom, WritableAtom } from 'jotai'
-import { Ref } from 'react'
+import { createRef, Ref } from 'react'
 
 const uuid = () => new Date().getTime()
 
@@ -26,46 +26,55 @@ export const createNodeAtom = ({
   name, 
   position: atom(position), 
   fields: [{
-    id: `${Math.floor(Math.random() * uuid() / 100)}`,
+    id: `field-${Math.floor(Math.random() * uuid() / 1000000000)}`,
     name: "My field"
   }]
 })
 
 export const nodesAtom = atom([
-  createNodeAtom({ id: 1, position: [100, 100]}), 
-  createNodeAtom({ id: 2, name: "Another Node", position: [400, 100]})
+  createNodeAtom({ id: "node-1", position: [100, 100]}), 
+  createNodeAtom({ id: "node-2", name: "Another Node", position: [400, 100]})
 ])
 
 
-type ConnectionInput = {
-  node: string,
-  field: string
+export enum ConnectorDirection {
+  input = "INPUT",
+  output = "OUTPUT"
 }
 
-type connection = ConnectionInput[]
+export type Connector = {
+  node: string,
+  field: string,
+  direction: ConnectorDirection
+}
+
+type connection = string[]
 
 export const connectionsAtom = atom<connection[]>([])
 
-export function createConnection(input: ConnectionInput, output: ConnectionInput): connection {
-  return [input, output]
+export function createConnection(input: Connector, output: Connector): connection {
+  return [makeConnectorId(input), makeConnectorId(output)]
 }
 
-type ConnectorsMap = {
+type ConnectorsRefMap = {
   [key: string]: Ref<HTMLDivElement>
 }
 
-export const connectorsAtom = atom<ConnectorsMap>({})
+/**
+ * Holds refs for all connectors, used to draw the lines
+ */
+export const connectorsRef = createRef<ConnectorsRefMap>()
+// @ts-expect-error
+connectorsRef.current = {}
 
-export function makeConnectorId(node: string, field: string, direction: string) {
-  return `${node}-${field}-${direction}`
+export function makeConnectorId({ node, field, direction }: Connector) {
+  return `${node}_${field}_${direction}`
 }
 
 export  const connectionStateAtom = atom<{
   connecting: boolean,
-  input?: any,
-  output?: any,
+  origin: Connector | null
 }>({
   connecting: false,
-  input: undefined,
-  output: undefined
+  origin: null
 })

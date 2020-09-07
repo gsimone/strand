@@ -1,35 +1,64 @@
 
 import { useAtom } from 'jotai';
-import React, {useRef} from 'react' 
-import { connectionsAtom, connectorsAtom, makeConnectorId } from '../atoms';
+import React, {useRef, useEffect, useCallback} from 'react' 
+import { connectionsAtom, connectorsRef, connectionStateAtom, makeConnectorId } from '../atoms';
 
 const DRAW_INTERVAL = 16;
 
+type ClientRect = {
+  x: number,
+  y: number,
+  width: number,
+  height: number
+}
+
+function calcLine(a: ClientRect, b: ClientRect): number[] {
+
+  // @ts-ignore
+  const { x, y, width, height } = a
+  // @ts-ignore
+  const { x: bx, y: by } = b
+
+  return [
+    x + width / 2,
+    y + height / 2,
+    bx + width / 2,
+    by + height / 2,
+  ];
+
+}
+
 export default function Canvas() {
   const [connections] = useAtom(connectionsAtom)
-  const [connectors] = useAtom(connectorsAtom)
+  const [{ connecting, origin }] = useAtom(connectionStateAtom)
   const svg = useRef<SVGSVGElement>(null);
   
-  const draw = React.useCallback(
+  const mouse = useRef<number[]>([0, 0])
+  
+  const draw = useCallback(
     function draw() {
       const coords = connections.map(connection => {
-        
         const [input, output] = connection 
-        const inputRef = connectors[makeConnectorId(input.node, input.field, "input")];
-        const outputRef = connectors[makeConnectorId(output.node, output.field, "output")];
-
-        // @ts-ignore
-        const { x, y, width, height, } = inputRef.current.getBoundingClientRect();
-        // @ts-ignore
-        const { x: bx, y: by } = outputRef.current.getBoundingClientRect();
-      
-        return [
-          x + width / 2,
-          y + height / 2,
-          bx + width / 2,
-          by + height / 2,
-        ];
+        
+        // @ts-expect-error
+        const inputRef = connectorsRef.current[input];
+        // @ts-expect-error
+        const outputRef = connectorsRef.current[output];
+        
+        // @ts-expect-error
+        return calcLine(inputRef.current.getBoundingClientRect(), outputRef.current.getBoundingClientRect())
       })
+
+      if (connecting) {
+
+        const fakeLine =  calcLine(
+          // @ts-expect-error
+          connectorsRef.current[makeConnectorId(origin)].current.getBoundingClientRect(),
+          { x: mouse.current[0], y: mouse.current[1], width: 10, height: 10 }, 
+        )
+
+        coords.push(fakeLine)
+      }
 
       svg.current!.innerHTML = coords
         .map(
@@ -40,18 +69,27 @@ export default function Canvas() {
               ${(x2 + x) / 2},${y2} 
               ${x2},${y2}"
             />
-        `
-        )
+        `)
         .join("");
       
     },
-    [connections, connectors]
+    [connecting, connections, origin]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(draw, DRAW_INTERVAL);
     return () => clearInterval(interval);
   }, [draw]);
+
+  useEffect(() => {
+    function handleMouse(e: MouseEvent) {
+      mouse.current = [e.clientX, e.clientY] 
+    }
+    
+    document.addEventListener('mousemove', handleMouse)
+
+    return () => document.removeEventListener('mousemove', handleMouse)
+  }, [])
 
   return (
     <svg

@@ -5,73 +5,81 @@ import clsx from 'clsx'
 import { 
   connectionStateAtom, 
   connectionsAtom, 
-  connectorsAtom, 
   createConnection,
-  makeConnectorId
+  makeConnectorId,
+  connectorsRef,
+  ConnectorDirection
 } from '../atoms'
 
 import produce from 'immer';
 
-export default function Connector({ node, field, direction }) {
+type ConnectorProps = {
+  node: string,
+  field: string,
+  direction: ConnectorDirection
+}
+
+export default function Connector({ node, field, direction }: ConnectorProps) {
   const connectorRef = useRef<HTMLDivElement>(null)
+  
   const [connectionState, setConnectionState] = useAtom(connectionStateAtom);
   const [, setConnections] = useAtom(connectionsAtom)
-  const [connectors, setConnectors] = useAtom(connectorsAtom)
 
   /**
    * Register the connector ref, will be used to draw the connection lines
    */
   useEffect(() => {
+    const id = makeConnectorId({ node, field, direction })
+    // @ts-expect-error
+    connectorsRef.current[id] = connectorRef
+  }, [direction, node, field])
 
-    const id = makeConnectorId(node, field, direction)
-
-    console.log("add new connector ", id)
-    
-    setConnectors(connectors => ({
-      ...connectors,
-      [id]: connectorRef
-    }))
-    
-  }, [direction, node, field, setConnectors])
-
-  const { input, connecting, output } = connectionState
+  const {connecting, origin } = connectionState
 
   // disable a connection when one the same direction is set
-  const disabled = (input || output)?.node === node
-  const active = (direction === "input" && input?.field === field) || (direction === "output" && output?.field === field)
-
+  const disabled = origin?.node === node || origin?.direction === direction;
+  const active = true
+  
   /**
    * The node is a candidate if we are connecting and it's not disabled 
    */
-  const candidate = connecting && !disabled && (input || output).node !== node
+  const candidate = connecting && !disabled
 
   const handleClick = useCallback((field, direction) => {
 
     if (disabled) return
-    if (input === field) return
     
     /**
      * If we are already connecting, close a connection
      */
     if (connecting === true) {
-
+      setConnectionState({ connecting: false, origin: null })
       setConnections(produce(connections => {
-        const connection = direction === "input" ? createConnection({ field, node}, output) : createConnection(input, {field, node})
-        connections.push(connection)
+        connections.push(createConnection(origin!, {field, node,direction}))
       }))
-      
-      setConnectionState({ connecting: false, input: undefined, output: undefined })
-    } else {
-      // Otherwise start a new connection and set the input/output
-
+    }  else {
       setConnectionState(produce(draft => {
         draft.connecting = true
-        draft[direction] = { field, node }
+        draft.origin = { field, node, direction }
       }))
-
     }
+
+      // setConnections(produce(connections => {
+      //   const connection = direction === "input" ? 
+      //     createConnection({ field, node}, output) : 
+      //     createConnection([input, {field, node}])
+      //   connections.push(connection)
+      // }))
+      
+      // setConnectionState({ connecting: false, connectors: [] })
+    // } else {
+      // Otherwise start a new connection and set the input/output
+
+      
+
+    // }
     
-  }, [connecting, disabled, input, node, output, setConnectionState, setConnections])
+  }, [connecting, disabled, node, origin, setConnectionState, setConnections])
 
   return (
     <div

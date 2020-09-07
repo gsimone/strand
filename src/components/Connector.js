@@ -3,8 +3,9 @@ import { useAtom } from 'jotai'
 import clsx from 'clsx'
 
 import { connectionStateAtom, connectionsAtom, createConnection } from '../atoms'
+import produce from 'immer';
 
-export default function Connector({ parent, direction }) {
+export default function Connector({ node, parent, direction }) {
   const [{ connecting, input, output }, setConnectionState] = useAtom(connectionStateAtom);
   const [, setConnections] = useAtom(connectionsAtom)
 
@@ -20,25 +21,26 @@ export default function Connector({ parent, direction }) {
       if (direction === "input") {
         setConnections(connections => ([
           ...connections,
-          createConnection(parent, output)
+          createConnection({ field: parent, node }, output)
         ]))
       }  else {
-        setConnections(connections => ([
-          ...connections,
-          createConnection(input, parent)
-        ]))
+        setConnections(produce(connections => {
+          connections.push(createConnection(input, {field: parent, node}))
+        }))
       }
       
+      // we reset state 
       setConnectionState({ connecting: false })
     } else {
-      setConnectionState(state => ({ 
-        ...state, 
-        connecting: true, 
-        [direction]: parent
-     }))
+
+      setConnectionState(produce(draft => {
+        draft.connecting = true
+        draft[direction] = { field: parent, node }
+      }))
+
     }
     
-  }, [connecting, disabled, input, output, setConnectionState, setConnections])
+  }, [connecting, disabled, input, node, output, setConnectionState, setConnections])
 
   
 

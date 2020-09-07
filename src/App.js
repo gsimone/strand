@@ -62,7 +62,7 @@ function NodePosition({ nodeRef, positionAtom }) {
 }
 
 function Node({ nodeAtom }) {
-  const [myNode] = useAtom(nodeAtom);
+  const [{ position, name, fields, id }] = useAtom(nodeAtom);
   
   const nodeRef = React.useRef();
 
@@ -75,20 +75,20 @@ function Node({ nodeAtom }) {
         }}
         ref={nodeRef}
       >
-          <NodePosition nodeRef={nodeRef} positionAtom={myNode.position} />
+          <NodePosition nodeRef={nodeRef} positionAtom={position} />
           <div className="text-xs font-bold py-2 px-6 bg-gray-100 text-gray-800" >
-            {myNode.name}
+            {name}
           </div>
 
           <div className="mt-2 p-2 ">
-            {myNode.fields.map((field) => (
+            {fields.map((field) => (
               <div className="flex space-x-2 items-center group">
-                <Connector parent={field.id} direction="input" />
+                <Connector node={id} parent={field.id} direction="input" />
                 <div className="flex-1 mb-2">
                   {field.name}
                   <div className="text-xs text-gray-600">{field.id}</div>
                 </div>
-                <Connector parent={field.id} direction="output" />
+                <Connector node={id} parent={field.id} direction="output" />
               </div>
             ))}
           </div>

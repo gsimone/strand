@@ -1,0 +1,207 @@
+{
+  "nodes": [
+    {
+      "id": "spotty-monkey-5",
+      "fields": [
+        {
+          "id": "nice-mayfly-0",
+          "name": "ID pre-preventivo",
+          "required": true,
+          "validation": "{\n \"type\": \"string\"\n}"
+        },
+        {
+          "id": "neat-warthog-86",
+          "name": "ID negozio",
+          "required": true
+        },
+        {
+          "id": "white-walrus-32",
+          "name": "ID pre-preventivo interno negozio"
+        },
+        {
+          "id": "ancient-turtle-88",
+          "name": "Documento",
+          "required": true
+        }
+      ],
+      "avatar": {
+        "icon": "shop",
+        "backgroundColor": "#27ae60"
+      },
+      "users": [384729, 384730, 384736],
+      "name": "Pre-preventivo",
+      "description": "Document ofirmat odal cliente in negozio."
+    },
+    {
+      "id": "helpless-swan-35",
+      "fields": [
+        {
+          "id": "strong-parrot-44",
+          "name": "ID preventivoo ufficiale",
+          "required": true,
+          "validation": "{\n \"type\": \"string\"\n}"
+        },
+        {
+          "id": "old-wolverine-75",
+          "name": "ID pre-preventivo",
+          "required": true
+        },
+        {
+          "id": "unlucky-rattlesnake-42",
+          "name": "ID negozio",
+          "required": true
+        },
+        {
+          "id": "brown-baboon-76",
+          "name": "Documento preventivo",
+          "required": true
+        }
+      ],
+      "avatar": {
+        "icon": "file-pdf",
+        "backgroundColor": "#f1c40f"
+      },
+      "users": [384729],
+      "name": "Preventivo completo",
+      "description": "Creato dal consorzio, probabilmente da un software che riceve dati prodotto e quantità e tempi e dettagli di installazine richiesti e crea un documento preventivo automatico."
+    },
+    {
+      "id": "dry-otter-99",
+      "fields": [
+        {
+          "id": "blue-mole-98",
+          "name": "ID preventivo",
+          "required": true,
+          "validation": "{\n \"type\": \"string\"\n}"
+        },
+        {
+          "id": "rare-husky-92",
+          "name": "Documento firmato",
+          "required": true
+        }
+      ],
+      "avatar": {
+        "icon": "file-text",
+        "backgroundColor": "#95a5a6"
+      },
+      "users": [384736, 384731],
+      "name": "Preventivo firmato"
+    },
+    {
+      "id": "tasty-fox-54",
+      "fields": [
+        {
+          "id": "silly-falcon-70",
+          "name": "ID preventivo",
+          "required": true,
+          "validation": "{\n \"type\": \"string\"\n}"
+        },
+        {
+          "id": "perfect-emu-50",
+          "name": "Foto o video prima",
+          "required": true
+        },
+        {
+          "id": "black-rat-20",
+          "name": "foto o video dopo",
+          "required": true
+        },
+        {
+          "id": "brave-zebra-83",
+          "name": "GPS location",
+          "required": true
+        },
+        {
+          "id": "heavy-impala-52",
+          "name": "Verbale di collaudo del cliente",
+          "required": true
+        }
+      ],
+      "avatar": {
+        "icon": "camera",
+        "backgroundColor": "#34495e"
+      },
+      "users": [384735],
+      "name": "Prova installazione"
+    },
+    {
+      "id": "spicy-frog-79",
+      "fields": [
+        {
+          "id": "slippery-jellyfish-81",
+          "name": "ID installazione",
+          "required": true,
+          "validation": "{\n \"type\": \"string\"\n}"
+        },
+        {
+          "id": "new-chicken-18",
+          "name": "Documenti catastali",
+          "required": true
+        },
+        {
+          "id": "plastic-mouse-38",
+          "name": "Libretto caldaia",
+          "required": true
+        },
+        {
+          "id": "pretty-lionfish-11",
+          "name": "Scheda beneficiario dati immobile",
+          "required": true
+        },
+        {
+          "id": "happy-liger-72",
+          "name": "Fatture",
+          "required": true
+        },
+        {
+          "id": "little-bobcat-65",
+          "name": "Bonifici",
+          "required": true
+        },
+        {
+          "id": "quick-panda-29",
+          "name": "Documenti certificazioni fornitori",
+          "required": true
+        }
+      ],
+      "avatar": {
+        "icon": "file-add",
+        "backgroundColor": "#C00"
+      },
+      "users": [384729],
+      "name": "Documenti forniti da clienti per ENEA"
+    }
+  ],
+  "connections": [
+    {
+      "from": "spotty-monkey-5.nice-mayfly-0.out",
+      "to": "helpless-swan-35.old-wolverine-75.in"
+    },
+    {
+      "from": "helpless-swan-35.strong-parrot-44.out",
+      "to": "dry-otter-99.blue-mole-98.in"
+    },
+    {
+      "from": "dry-otter-99.blue-mole-98.out",
+      "to": "tasty-fox-54.silly-falcon-70.in"
+    },
+    {
+      "from": "tasty-fox-54.silly-falcon-70.out",
+      "to": "spicy-frog-79.slippery-jellyfish-81.in"
+    },
+    {
+      "from": "helpless-swan-35.neat-warthog-86.in",
+      "to": "spotty-monkey-5.unlucky-rattlesnake-42.out"
+    },
+    {
+      "from": "helpless-swan-35.brown-baboon-76.out",
+      "to": "dry-otter-99.rare-husky-92.in"
+    }
+  ],
+  "positions": {
+    "helpless-swan-35": [356, 0],
+    "dry-otter-99": [694, 0],
+    "tasty-fox-54": [1033, 0],
+    "spicy-frog-79": [1400, 0]
+  }
+}

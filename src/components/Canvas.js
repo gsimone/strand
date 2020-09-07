@@ -1,28 +1,27 @@
 
+import { useAtom } from 'jotai';
 import React, {useRef} from 'react' 
+import { connectionsAtom, connectorsRef, makeConnectorId } from '../atoms';
 
 const DRAW_INTERVAL = 16;
 
-export default function Canvas({ nodes, connections, temp }) {
+export default function Canvas({ nodes }) {
+  const [connections] = useAtom(connectionsAtom)
   const svg = useRef();
 
   const draw = React.useCallback(
     function draw() {
-      const coords = connections
-        .map((connection) => {
-          const { from, to } = connection;
+      const coords = connections.map(connection => {
 
-          const [_, fromNode] = from.split(".");
-          const [__, toNode] = to.split(".");
+        const [input, output] = connection 
+        const inputRef = connectorsRef.current[makeConnectorId(input.node, input.field, "input")];
+        const outputRef = connectorsRef.current[makeConnectorId(output.node, output.field, "output")];
 
-          return [fromNode, toNode];
-        })
-        .map(function drawConnection(connection) {
-          const [from, to] = connection;
-
-          const fromNode = nodes.get(`${from}_OUTPUT`);
-          const toNode = nodes.get(`${to}_INPUT`);
-
+        return [inputRef, outputRef]        
+      })
+      .map(connection => {
+        const [fromNode, toNode] = connection
+        
           const {
             x,
             y,
@@ -30,14 +29,14 @@ export default function Canvas({ nodes, connections, temp }) {
             height,
           } = fromNode.current.getBoundingClientRect();
           const { x: bx, y: by } = toNode.current.getBoundingClientRect();
-
-          return [
-            x + width / 2,
-            y + height / 2,
-            bx + width / 2,
-            by + height / 2,
-          ];
-        });
+        
+        return [
+          x + width / 2,
+          y + height / 2,
+          bx + width / 2,
+          by + height / 2,
+        ];
+      })
 
       svg.current.innerHTML = coords
         .map(
@@ -51,8 +50,9 @@ export default function Canvas({ nodes, connections, temp }) {
         `
         )
         .join("");
+      
     },
-    [connections, nodes]
+    [connections]
   );
 
   React.useEffect(() => {
@@ -75,6 +75,8 @@ export default function Canvas({ nodes, connections, temp }) {
         fill: "none",
         zIndex: 1,
       }}
-    />
+    >
+      
+    </svg>
   );
 }

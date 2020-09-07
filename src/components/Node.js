@@ -18,10 +18,11 @@ export default function Node({ nodeAtom }) {
         }}
         ref={nodeRef}
       >
-          <NodePosition nodeRef={nodeRef} positionAtom={position} />
-          <div className="text-xs font-bold py-2 px-6 bg-gray-100 text-gray-800" >
-            {name}
-          </div>
+          <NodePosition nodeRef={nodeRef} positionAtom={position} >
+            <div className="text-xs font-bold py-2 px-6 bg-gray-100 text-gray-800" >
+              {name}
+            </div>
+          </NodePosition>
 
           <div className="mt-2 p-2 ">
             {fields.map((field) => (

@@ -1,7 +1,7 @@
 import React, { useCallback,useRef, useEffect } from "react";
 import { useAtom } from 'jotai'
 
-export default function NodePosition({ nodeRef, positionAtom }) {
+export default function NodePosition({ nodeRef, positionAtom, children }) {
   const [position, setPosition] = useAtom(positionAtom)
   const offset = useRef();
 
@@ -48,10 +48,12 @@ export default function NodePosition({ nodeRef, positionAtom }) {
 
   return (
     <div
-      className="text-xs font-bold py-2 px-6 bg-gray-100 text-gray-800"
       onMouseDownCapture={startMoving}
+      style={{
+        cursor: "grab"
+      }}
     >
-      Handle
+      {children}
     </div>
   )
 }

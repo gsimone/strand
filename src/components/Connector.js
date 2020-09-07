@@ -2,28 +2,37 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { useAtom } from 'jotai'
 import clsx from 'clsx'
 
-import { connectionStateAtom, connectionsAtom, connectorsAtom, createConnection } from '../atoms'
+import { 
+  connectionStateAtom, 
+  connectionsAtom, 
+  connectorsRef, 
+  createConnection,
+  makeConnectorId
+} from '../atoms'
+
+
+
 import produce from 'immer';
 
 export default function Connector({ node, field, direction }) {
   const connectorRef = useRef()
-  const [{ connecting, input, output }, setConnectionState] = useAtom(connectionStateAtom);
+  const [connectionState, setConnectionState] = useAtom(connectionStateAtom);
   const [, setConnections] = useAtom(connectionsAtom)
-  const [, setConnectors] = useAtom(connectorsAtom)
 
   /**
    * Register the connector ref, will be used to draw the connection lines
    */
   useEffect(() => {
+    connectorsRef.current[makeConnectorId(node, field, direction)] = connectorRef
+  }, [direction, node, field])
 
-    setConnectors(produce(connectors => {
-      connectors[`${node}-${field}-${direction}`] = connectorRef
-    }))
-    
-  }, [direction, node, field, setConnectors])
-  
-  const disabled = (input && direction === "input") || (output && direction === "output")
-  const active = (input === field)
+  const { input, connecting, output } = connectionState
+
+  // disable a connection when one the same direction is set
+  const disabled = (input || output)?.node === node || (input && direction === "input") || (output && direction === "output")
+  const active = (direction === "input" && input?.field === field) || (direction === "output" && output?.field === field)
+
+  const candidate = connecting && !disabled && !active && (input || output).node !== node
 
   const handleClick = useCallback((field, direction) => {
 
@@ -58,19 +67,27 @@ export default function Connector({ node, field, direction }) {
       className={
         clsx(`
           cursor-pointer w-2 h-2 
-          border-2 bg-gray-700 
+          
           group-hover:visible 
           rounded-full
+
+          border-2
         `, 
-        !disabled && !active && `
+        false && `
           hover:border-green-600
+          bg-gray-700 
         `,
           disabled && `
             opacity-50
             cursor-not-allowed
           `, 
           active && `
-            border-green-400
+            border-orange-400
+            bg-orange-400
+          `,
+          candidate && `
+            border-blue-600
+            hover:bg-blue-600
           `
         )
       }

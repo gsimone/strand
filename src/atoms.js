@@ -1,8 +1,9 @@
 import { atom } from 'jotai'
+import { createRef } from 'react'
 
 const uuid = () => new Date().getTime()
 
-export const createNodeAtom = ({ id, position, name = "My field" }) => atom({ 
+export const createNodeAtom = ({ id, position = [0, 0], name = "My field" }) => atom({ 
   id, 
   name, 
   position: atom(position), 
@@ -23,6 +24,13 @@ export const connectionsAtom = atom([])
 
 export function createConnection(input, output) {
   return [input, output]
+}
+
+export const connectorsRef = createRef()
+connectorsRef.current = {}
+
+export function makeConnectorId(node, field, direction) {
+  return `${node}-${field}-${direction}`
 }
 
 export  const connectionStateAtom = atom({

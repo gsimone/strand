@@ -1,9 +1,9 @@
 
-import { useAtom } from 'jotai';
-import React, {useRef, useEffect, useCallback} from 'react' 
-import { connectionsAtom, connectorsRef, connectionStateAtom, makeConnectorId } from '../atoms';
+import { atom, useAtom } from 'jotai';
+import React, {useRef, useEffect, useCallback, useMemo} from 'react' 
+import throttle from 'lodash.throttle'
 
-const DRAW_INTERVAL = 16;
+import { connectionsAtom, Connection, connectorsRef, nodesAtom } from '../atoms';
 
 type ClientRect = {
   x: number,
@@ -28,58 +28,107 @@ function calcLine(a: ClientRect, b: ClientRect): number[] {
 
 }
 
+type StrandProps = {
+  connection: Connection
+}
+
+function getNodeIDFromConnectionID(connectionID) {
+  return connectionID.split('_')[0]
+}
+
+const createConnectedNodesPositions = (connection: Connection) => atom(get => {
+  
+  // get node ids 
+  const connectedNodesIDs = connection.map(getNodeIDFromConnectionID)
+  
+  const nodes = get(nodesAtom)
+  
+  const connectedNodes = nodes.filter(nodeAtom => {
+    const node = get(nodeAtom)
+    // filter nodes if they are found in the connectedNodesIDs array
+    return connectedNodesIDs.indexOf(`${node.id}`) > -1
+  })
+
+  const positions = connectedNodes.map(nodeAtom => {
+    const node = get(nodeAtom)
+    const position = get(node.position)
+    return position
+  })
+  return [connectedNodes, positions]
+})
+
+function Strand({ connection }: StrandProps) {
+  // this will rerender our component when involved nodes positions change
+  // eslint-disable-next-line
+  useAtom(useMemo(() => createConnectedNodesPositions(connection), [connection]))
+
+  const pathRef = useRef<SVGPathElement>(null)
+  const draw = useCallback(throttle(() => {
+      const [input, output] = connection 
+      
+      // @ts-expect-error
+      const inputRef = connectorsRef.current[input];
+      // @ts-expect-error
+      const outputRef = connectorsRef.current[output];
+      // @ts-expect-error
+      const [x, y, x2, y2] = calcLine(inputRef.current.getBoundingClientRect(), outputRef.current.getBoundingClientRect())
+
+      pathRef.current!.setAttribute(
+        'd', 
+        `
+          M${x},${y} 
+          C${(x + x2) / 2},${y} 
+          ${(x2 + x) / 2},${y2} 
+          ${x2},${y2}
+        `);
+    }), 
+    [connection]
+  )
+
+  useEffect(() => {
+    draw()
+  })
+
+  return (<path ref={pathRef} />)
+
+}
+
 export default function Canvas() {
   const [connections] = useAtom(connectionsAtom)
-  const [{ connecting, origin }] = useAtom(connectionStateAtom)
+  // const [{ connecting, origin }] = useAtom(connectionStateAtom)
   const svg = useRef<SVGSVGElement>(null);
   
   const mouse = useRef<number[]>([0, 0])
   
-  const draw = useCallback(
-    function draw() {
-      const coords = connections.map(connection => {
-        const [input, output] = connection 
+  // const draw = useCallback(
+  //   function draw() {
+  //     const coords = connections.map(connection => {
+  //       const [input, output] = connection 
         
-        // @ts-expect-error
-        const inputRef = connectorsRef.current[input];
-        // @ts-expect-error
-        const outputRef = connectorsRef.current[output];
+  //       // @ts-expect-error
+  //       const inputRef = connectorsRef.current[input];
+  //       // @ts-expect-error
+  //       const outputRef = connectorsRef.current[output];
         
-        // @ts-expect-error
-        return calcLine(inputRef.current.getBoundingClientRect(), outputRef.current.getBoundingClientRect())
-      })
+  //       // @ts-expect-error
+  //       return calcLine(inputRef.current.getBoundingClientRect(), outputRef.current.getBoundingClientRect())
+  //     })
 
-      if (connecting) {
+  //     if (connecting) {
 
-        const fakeLine =  calcLine(
-          // @ts-expect-error
-          connectorsRef.current[makeConnectorId(origin)].current.getBoundingClientRect(),
-          { x: mouse.current[0], y: mouse.current[1], width: 10, height: 10 }, 
-        )
+  //       const fakeLine =  calcLine(
+  //         // @ts-expect-error
+  //         connectorsRef.current[makeConnectorId(origin)].current.getBoundingClientRect(),
+  //         { x: mouse.current[0], y: mouse.current[1], width: 10, height: 10 }, 
+  //       )
 
-        coords.push(fakeLine)
-      }
+  //       coords.push(fakeLine)
+  //     }
 
-      svg.current!.innerHTML = coords
-        .map(
-          ([x, y, x2, y2]) => `
-            <path d="
-              M${x},${y} 
-              C${(x + x2) / 2},${y} 
-              ${(x2 + x) / 2},${y2} 
-              ${x2},${y2}"
-            />
-        `)
-        .join("");
       
-    },
-    [connecting, connections, origin]
-  );
-
-  useEffect(() => {
-    const interval = setInterval(draw, DRAW_INTERVAL);
-    return () => clearInterval(interval);
-  }, [draw]);
+  //   },
+  //   [connecting, connections, origin]
+  // );
 
   useEffect(() => {
     function handleMouse(e: MouseEvent) {
@@ -106,6 +155,8 @@ export default function Canvas() {
         fill: "none",
         zIndex: 1,
       }}
-    />
+    >
+      {connections.map((connection, i) => (<Strand key={connection.join('.')} connection={connection} />))}
+    </svg>
   );
 }

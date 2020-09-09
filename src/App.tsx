@@ -14,13 +14,13 @@ function Nodes() {
   }, [setNodes])
 
   return (
-    <>
-      {nodes.map((node, i) => <Node nodeAtom={node} />)}
+    <div>
+      {nodes.map((node, i) => <Node key={i} nodeAtom={node} />)}
       <div>
-          {/* eslint-disable-next-line */}
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onAdd}> 🆕 Add node</button>
+        {/* eslint-disable-next-line */}
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={onAdd}> 🆕 Add node</button>
       </div>
-    </>
+    </div>
   )
   
 }

@@ -33,7 +33,7 @@ export const createNodeAtom = ({
 
 export const nodesAtom = atom([
   createNodeAtom({ id: "node-1", position: [100, 100]}), 
-  createNodeAtom({ id: "node-2", name: "Another Node", position: [400, 100]})
+  // createNodeAtom({ id: "node-2", name: "Another Node", position: [400, 100]})
 ])
 
 
@@ -48,11 +48,11 @@ export type Connector = {
   direction: ConnectorDirection
 }
 
-type connection = string[]
+export type Connection = string[]
 
-export const connectionsAtom = atom<connection[]>([])
+export const connectionsAtom = atom<Connection[]>([])
 
-export function createConnection(input: Connector, output: Connector): connection {
+export function createConnection(input: Connector, output: Connector): Connection {
   return [makeConnectorId(input), makeConnectorId(output)]
 }
 

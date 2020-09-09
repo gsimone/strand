@@ -11,6 +11,7 @@
     "cssnano": "^4.1.10",
     "immer": "^7.0.8",
     "jotai": "0.2.1",
+    "lodash.throttle": "^4.1.1",
     "postcss-import": "^12.0.1",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",

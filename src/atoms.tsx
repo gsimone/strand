@@ -1,7 +1,7 @@
 import { atom, WritableAtom } from 'jotai'
 import { createRef, Ref } from 'react'
 
-const uuid = () => new Date().getTime()
+import { makeConnectorId, uuid } from './utils'
 
 export type Position = number[]
 
@@ -64,14 +64,35 @@ export const connectorsRef = createRef<ConnectorsRefMap>()
 // @ts-expect-error
 connectorsRef.current = {}
 
-export function makeConnectorId({ node, field, direction }: Connector) {
-  return `${node}_${field}_${direction}`
-}
-
 export  const connectionStateAtom = atom<{
   connecting: boolean,
   origin: Connector | null
 }>({
   connecting: false,
   origin: null
+})
+
+export const serializedStateAtom = atom((get) => {
+  const nodeAtoms = get(nodesAtom)
+  const connections = get(connectionsAtom)
+
+  return {
+    nodes: nodeAtoms.map(nodeAtom => {
+
+    const node = get(nodeAtom)
+    const position = get(node.position)
+
+    return {
+      ...node,
+      position
+    }
+
+  }), connections }
+})
+
+export const deserializeStateAtom = atom(null, (get, set, data) => {
+  // @ts-ignore
+  set(nodesAtom, data.nodes.map(node => createNodeAtom(node)))
+  // @ts-ignore
+  set(connectionsAtom, data.connections)
 })

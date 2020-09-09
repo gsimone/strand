@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useRef } from 'react'
 import { useAtom } from 'jotai'
 import clsx from 'clsx'
+import produce from 'immer';
 
 import { 
   connectionStateAtom, 
   connectionsAtom, 
   createConnection,
-  makeConnectorId,
   connectorsRef,
   ConnectorDirection
 } from '../atoms'
 
-import produce from 'immer';
+import { makeConnectorId } from '../utils'
 
 type ConnectorProps = {
   node: string,

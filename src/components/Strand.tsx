@@ -3,18 +3,16 @@ import { atom, useAtom } from 'jotai';
 import React, {useRef, useCallback, useMemo, useLayoutEffect} from 'react' 
 import throttle from 'lodash.throttle'
 
-import { Connection, connectionsAtom, connectorsRef, nodesAtom } from '../atoms';
 import produce from 'immer';
+
+import { Connection, connectionsAtom, connectorsRef, nodesAtom } from '../atoms';
+import { decimalPlaces } from '../utils'
 
 type ClientRect = {
   x: number,
   y: number,
   width: number,
   height: number
-}
-
-function decimalPlaces(num) {
-  return Math.round(num * 100) / 100
 }
 
 function calcLine(a: ClientRect, b: ClientRect): number[] {

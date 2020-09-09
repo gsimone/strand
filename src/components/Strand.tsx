@@ -65,6 +65,7 @@ export default function Strand({ connection }: StrandProps) {
   const [, setConnections] = useAtom(connectionsAtom)
 
   const pathRef = useRef<SVGPathElement>(null)
+  const interactivePathRef = useRef<SVGPathElement>(null)
   const draw = useCallback(throttle(() => {
       const [input, output] = connection 
       
@@ -75,14 +76,16 @@ export default function Strand({ connection }: StrandProps) {
       // @ts-expect-error
       const [x, y, x2, y2] = calcLine(inputRef.current.getBoundingClientRect(), outputRef.current.getBoundingClientRect())
 
-      pathRef.current!.setAttribute(
-        'd', 
-        `
-          M${x},${y} 
-          C${(x + x2) / 2},${y} 
-          ${(x2 + x) / 2},${y2} 
-          ${x2},${y2}
-        `);
+      const line = `
+        M${x},${y} 
+        C${(x + x2) / 2},${y} 
+        ${(x2 + x) / 2},${y2} 
+        ${x2},${y2}
+      `
+      
+      pathRef.current!.setAttribute( 'd', line );
+      interactivePathRef.current!.setAttribute( 'd', line );
+        
     }), 
     [connection]
   )
@@ -103,6 +106,11 @@ export default function Strand({ connection }: StrandProps) {
     }))
   }, [connection, setConnections])
 
-  return (<path ref={pathRef} onContextMenuCapture={removeConnection} className={`cursor-pointer hover:text-red-500 stroke-current`} />)
+  return (
+    <g className="cursor-pointer hover:text-red-500 ">
+      <path ref={pathRef} strokeWidth={2} className={`stroke-current`} />
+      <path ref={interactivePathRef} strokeWidth={15} style={{ opacity: 0 }} onContextMenuCapture={removeConnection} />
+    </g>
+  )
 
 }

@@ -1,6 +1,6 @@
 
 import { atom, useAtom } from 'jotai';
-import React, {useRef, useEffect, useCallback, useMemo, useLayoutEffect} from 'react' 
+import React, {useRef, useCallback, useMemo, useLayoutEffect} from 'react' 
 import throttle from 'lodash.throttle'
 
 import { Connection, connectionsAtom, connectorsRef, nodesAtom } from '../atoms';

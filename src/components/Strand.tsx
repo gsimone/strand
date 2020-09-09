@@ -99,7 +99,7 @@ export default function Strand({ connection }: StrandProps) {
     
     setConnections(produce(connections => {
       connections = connections.filter(thisConnection => { 
-        return connection[0] !== thisConnection[0] && connection[1] !== thisConnection[1]
+        return connection[0] !== thisConnection[0] || connection[1] !== thisConnection[1]
       })
 
       return connections

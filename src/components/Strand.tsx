@@ -1,6 +1,6 @@
 
 import { atom, useAtom } from 'jotai';
-import React, {useRef, useEffect, useCallback, useMemo} from 'react' 
+import React, {useRef, useEffect, useCallback, useMemo, useLayoutEffect} from 'react' 
 import throttle from 'lodash.throttle'
 
 import { Connection, connectionsAtom, connectorsRef, nodesAtom } from '../atoms';
@@ -13,6 +13,10 @@ type ClientRect = {
   height: number
 }
 
+function decimalPlaces(num) {
+  return Math.round(num * 100) / 100
+}
+
 function calcLine(a: ClientRect, b: ClientRect): number[] {
 
   // @ts-ignore
@@ -21,10 +25,10 @@ function calcLine(a: ClientRect, b: ClientRect): number[] {
   const { x: bx, y: by } = b
 
   return [
-    x + width / 2,
-    y + height / 2,
-    bx + width / 2,
-    by + height / 2,
+    decimalPlaces(x + width / 2),
+    decimalPlaces(y + height / 2),
+    decimalPlaces(bx + width / 2),
+    decimalPlaces(by + height / 2),
   ];
 
 }
@@ -73,6 +77,11 @@ export default function Strand({ connection }: StrandProps) {
       const inputRef = connectorsRef.current[input];
       // @ts-expect-error
       const outputRef = connectorsRef.current[output];
+
+      if (typeof inputRef === "undefined" || typeof outputRef === "undefined") {
+        return
+      }
+
       // @ts-expect-error
       const [x, y, x2, y2] = calcLine(inputRef.current.getBoundingClientRect(), outputRef.current.getBoundingClientRect())
 
@@ -90,7 +99,7 @@ export default function Strand({ connection }: StrandProps) {
     [connection]
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     draw()
   })
 

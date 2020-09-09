@@ -8,7 +8,6 @@ import Strand from './Strand'
 
 export default function Canvas() {
   const [connections] = useAtom(connectionsAtom)
-  console.log(connections)
   // const [{ connecting, origin }] = useAtom(connectionStateAtom)
   const svg = useRef<SVGSVGElement>(null);
   

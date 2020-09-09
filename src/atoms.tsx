@@ -20,22 +20,19 @@ export type Node = {
 export const createNodeAtom = ({ 
   id, 
   position = [0, 0], 
-  name = "My field"
+  name = "My Node",
+  fields = [{
+    id: `field-${Math.floor(Math.random() * uuid() / 1000000000)}`,
+    name: "My field"
+  }]
 }) => atom<Node>({ 
   id, 
   name, 
   position: atom(position), 
-  fields: [{
-    id: `field-${Math.floor(Math.random() * uuid() / 1000000000)}`,
-    name: "My field"
-  }]
+  fields
 })
 
-export const nodesAtom = atom([
-  createNodeAtom({ id: "node-1", position: [100, 100]}), 
-  // createNodeAtom({ id: "node-2", name: "Another Node", position: [400, 100]})
-])
-
+export const nodesAtom = atom<WritableAtom<Node, Node>[]>([])
 
 export enum ConnectorDirection {
   input = "INPUT",

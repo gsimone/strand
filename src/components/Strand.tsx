@@ -2,6 +2,7 @@
 import { atom, useAtom } from 'jotai';
 import React, {useRef, useCallback, useMemo, useLayoutEffect} from 'react' 
 import throttle from 'lodash.throttle'
+import debounce from 'lodash.debounce'
 
 import produce from 'immer';
 
@@ -68,7 +69,7 @@ export default function Strand({ connection }: StrandProps) {
 
   const pathRef = useRef<SVGPathElement>(null)
   const interactivePathRef = useRef<SVGPathElement>(null)
-  const draw = useCallback(throttle(() => {
+  const draw = useCallback(debounce(() => {
       const [input, output] = connection 
       
       // @ts-expect-error

@@ -1,43 +1,17 @@
 import React, { useCallback, useEffect } from "react";
-import { atom, Provider as Jotai, useAtom } from 'jotai'
+import { Provider as Jotai, useAtom } from 'jotai'
 
-import { connectionsAtom, createNodeAtom, nodesAtom } from './atoms'
+import {  
+  deserializeStateAtom, createNodeAtom, nodesAtom } from './atoms'
 
 import Node from './components/Node'
 import Canvas from './components/Canvas'
 
 import data from './data.json'
 
-const serializedStateAtom = atom((get) => {
-
-  const nodeAtoms = get(nodesAtom)
-  const connections = get(connectionsAtom)
-
-  return {
-    nodes: nodeAtoms.map(nodeAtom => {
-
-    const node = get(nodeAtom)
-    const position = get(node.position)
-
-    return {
-      ...node,
-      position
-    }
-
-  }), connections }
-  
-})
-
-const deserializeStateAtom = atom(null, (get, set, data) => {
-  // @ts-ignore
-  set(nodesAtom, data.nodes.map(node => createNodeAtom(node)))
-  // @ts-ignore
-  set(connectionsAtom, data.connections)
-})
 
 function Nodes() {
   const [nodes, setNodes] = useAtom(nodesAtom);
-  const [state] = useAtom(serializedStateAtom)
   const [, deserializeState] = useAtom(deserializeStateAtom)
 
   useEffect(() => {
@@ -50,9 +24,6 @@ function Nodes() {
 
   return (
     <div>
-      <pre>
-        {JSON.stringify(state, null, '  ')}
-      </pre>
       {nodes.map((node, i) => <Node key={i} nodeAtom={node} />)}
       <div>
         {/* eslint-disable-next-line */}

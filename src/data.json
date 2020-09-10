@@ -2,7 +2,7 @@
   "nodes": [
     {
       "id": "node-1",
-      "name": "My field",
+      "name": "My node",
       "position": [
         254.00000762939453,
         133.00000762939453
@@ -16,7 +16,7 @@
     },
     {
       "id": 1599659486118,
-      "name": "My field",
+      "name": "Another node",
       "position": [
         526,
         164

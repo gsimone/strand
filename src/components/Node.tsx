@@ -1,19 +1,47 @@
-import React from "react";
-import { useAtom, WritableAtom } from 'jotai'
+import React, { SetStateAction, useCallback, useRef } from "react";
+import { atom, useAtom, WritableAtom } from 'jotai'
 
 import NodePosition from './NodePosition'
-import Connector from './Connector'
+import Field from './Field'
 
-import { ConnectorDirection, Node as NodeType } from '../atoms'
+import { Connection, connectionsAtom, createFieldAtom, Node as NodeType } from '../atoms'
+import produce from "immer";
+import { uuid } from "utils";
 
 type NodeProps = {
-  nodeAtom: WritableAtom<NodeType, NodeType>
+  nodeAtom: WritableAtom<NodeType, SetStateAction<NodeType>>
 }
 
-export default function Node({ nodeAtom }: NodeProps) {
-  const [{ position, name, fields, id }] = useAtom(nodeAtom);
+const filterConnection = (id) => (connection: Connection) => connection.map(connectorId => connectorId.split('_')[1]).join('-').indexOf(id) < 0
 
-  const nodeRef = React.useRef<HTMLDivElement>(null);
+const removeFieldAtom = (nodeAtom) => atom(null, (get, set, fieldId) => {
+  // cleanup connections
+  set(connectionsAtom, produce(connections => connections.filter(filterConnection(fieldId))))
+  // remove field from node fields
+  set(nodeAtom, produce(node => {
+    node.fields = node.fields.filter(fieldAtom => {
+      const { id } = get(fieldAtom)
+      return id !== fieldId
+    })
+  }))
+})
+
+export default function Node({ nodeAtom }: NodeProps) {
+  const [{ position, id, name, fields: fieldAtoms }, setNode] = useAtom(nodeAtom);
+  const [, removeField] = useAtom(removeFieldAtom(nodeAtom))
+
+  const nodeRef = useRef<HTMLDivElement>(null);
+
+  const addField = useCallback(() => {
+    setNode(produce(node => {
+      node.fields.push(createFieldAtom({ id: uuid(), name: "New field "}))
+    }))
+  }, [setNode])
+
+  const deleteField = useCallback((deleteId) => {
+    // @ts-ignore
+    removeField(deleteId)
+  }, [removeField])
 
   return (
     <>
@@ -29,16 +57,8 @@ export default function Node({ nodeAtom }: NodeProps) {
           </NodePosition>
 
           <div className="mt-2 p-2 ">
-            {fields.map((field) => (
-              <div key={field.id} className="flex space-x-2 items-center group">
-                <Connector node={id} field={field.id} direction={ConnectorDirection.input} />
-                <div className="flex-1 mb-2">
-                  {field.name}
-                  <div className="text-xs text-gray-600">{field.id}</div>
-                </div>
-                <Connector node={id} field={field.id} direction={ConnectorDirection.output} />
-              </div>
-            ))}
+            {fieldAtoms.map((field, i) => <Field onDelete={deleteField} nodeId={id} fieldAtom={field} key={i} />)}
+            <button onClick={addField}>Add field</button>
           </div>
       </div>
     </>

@@ -1,5 +1,5 @@
-import { atom, WritableAtom } from 'jotai'
-import { createRef, Ref } from 'react'
+import { Atom, atom, WritableAtom } from 'jotai'
+import { createRef, Ref, SetStateAction } from 'react'
 
 import { makeConnectorId, uuid } from './utils'
 
@@ -7,32 +7,41 @@ export type Position = number[]
 
 export type NodeField = {
   id: string,
-  name: string
+  name: string,
 }
 
 export type Node = {
   id: string,
   name: string,
   position: WritableAtom<Position, Position>,
-  fields: NodeField[]
+  fields: WritableAtom<NodeField, SetStateAction<NodeField>>[]
 }
+
+
+export const createFieldAtom = ({
+  id,
+  name,
+}) => atom<NodeField>({
+  id,
+  name
+})
 
 export const createNodeAtom = ({ 
   id, 
   position = [0, 0], 
   name = "My Node",
   fields = [{
-    id: `field-${Math.floor(Math.random() * uuid() / 1000000000)}`,
-    name: "My field"
+    id: uuid(),
+    name: "Default name"
   }]
 }) => atom<Node>({ 
   id, 
   name, 
-  position: atom(position), 
-  fields
+  position: atom<Position>(position), 
+  fields: fields.map(createFieldAtom)
 })
 
-export const nodesAtom = atom<WritableAtom<Node, Node>[]>([])
+export const nodesAtom = atom<WritableAtom<Node, SetStateAction<Node>>[]>([])
 
 export enum ConnectorDirection {
   input = "INPUT",

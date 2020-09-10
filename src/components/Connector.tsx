@@ -38,12 +38,12 @@ export default function Connector({ node, field, direction }: ConnectorProps) {
 
   // disable a connection when one the same direction is set
   const disabled = origin?.node === node || origin?.direction === direction;
-  const active = true
+  const active = origin?.node === node && origin?.direction === direction;
   
   /**
    * The node is a candidate if we are connecting and it's not disabled 
    */
-  const candidate = connecting && !disabled
+  const candidate = connecting && !disabled && direction !== origin?.direction
 
   const handleClick = useCallback((field, direction) => {
 
@@ -67,37 +67,28 @@ export default function Connector({ node, field, direction }: ConnectorProps) {
   }, [connecting, disabled, node, origin, setConnectionState, setConnections])
 
   return (
-    <div
-      className={
-        clsx(`
-          cursor-pointer w-2 h-2 
-          
-          group-hover:visible 
-          rounded-full
-
-          border-2
-        `, 
-        false && `
-          hover:border-green-600
-          bg-gray-700 
-        `,
-          disabled && `
-            cursor-not-allowed
-          `, 
-          active && `
-            border-orange-300
-            bg-orange-300
-          `,
-          candidate && `
-            border-blue-600
-            hover:bg-blue-600
-          `
-        )
-      }
+    <span className={`
+        flex
+        w-2
+        h-2
+        cursor-pointer
+        relative
+        items-center
+      `}
       ref={connectorRef}
       onMouseDown={() => { 
         handleClick(field, direction)
       }}
-    />
+    >
+      {candidate && <span className="animate-ping absolute inline-flex h-4 w-4 -ml-1 rounded-full bg-orange-400 opacity-75"></span>}
+      <span 
+        className={ clsx(
+          `relative inline-flex rounded-full h-2 w-2 border`, 
+          !active && !candidate && !disabled && `hover:border-green-500`,
+          candidate && `border-orange-500 hover:bg-orange-500`,
+          active && `bg-green-500 border-green-500`
+        )}
+      />
+    </span>
   );
 }

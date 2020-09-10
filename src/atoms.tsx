@@ -1,4 +1,4 @@
-import { Atom, atom, WritableAtom } from 'jotai'
+import { atom, WritableAtom } from 'jotai'
 import { createRef, Ref, SetStateAction } from 'react'
 
 import { makeConnectorId, uuid } from './utils'
@@ -43,6 +43,10 @@ export const createNodeAtom = ({
 
 export const nodesAtom = atom<WritableAtom<Node, SetStateAction<Node>>[]>([])
 
+
+/**
+ * Creating connections
+ */
 export enum ConnectorDirection {
   input = "INPUT",
   output = "OUTPUT"
@@ -62,13 +66,14 @@ export function createConnection(input: Connector, output: Connector): Connectio
   return [makeConnectorId(input), makeConnectorId(output)]
 }
 
-type ConnectorsRefMap = {
-  [key: string]: Ref<HTMLDivElement>
-}
 
 /**
  * Holds refs for all connectors, used to draw the lines
  */
+type ConnectorsRefMap = {
+  [key: string]: Ref<HTMLDivElement>
+}
+
 export const connectorsRef = createRef<ConnectorsRefMap>()
 // @ts-expect-error
 connectorsRef.current = {}
@@ -81,6 +86,9 @@ export  const connectionStateAtom = atom<{
   origin: null
 })
 
+/**
+ * Used to save and restore state
+ */
 export const serializedStateAtom = atom((get) => {
   const nodeAtoms = get(nodesAtom)
   const connections = get(connectionsAtom)

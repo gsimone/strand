@@ -18,7 +18,6 @@ function Field({ fieldAtom, nodeId, onDelete }: FieldProps) {
   const [{ id, name }, setField] = useAtom(fieldAtom)
   const inputRef = useRef<HTMLInputElement>(null)
 
-
   useEffect(() => {
     inputRef!.current!.focus()
   }, [])

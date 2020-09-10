@@ -1,7 +1,6 @@
 
 import { atom, useAtom } from 'jotai';
 import React, {useRef, useCallback, useMemo, useLayoutEffect} from 'react' 
-import throttle from 'lodash.throttle'
 import debounce from 'lodash.debounce'
 
 import produce from 'immer';

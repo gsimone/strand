@@ -1,47 +1,9 @@
 import { atom, WritableAtom } from 'jotai'
 import { createRef, Ref, SetStateAction } from 'react'
-
+import produce from 'immer'
 import { makeConnectorId, uuid } from './utils'
 
-export type Position = number[]
 
-export type NodeField = {
-  id: string,
-  name: string,
-}
-
-export type Node = {
-  id: string,
-  name: string,
-  position: WritableAtom<Position, Position>,
-  fields: WritableAtom<NodeField, SetStateAction<NodeField>>[]
-}
-
-
-export const createFieldAtom = ({
-  id,
-  name,
-}) => atom<NodeField>({
-  id,
-  name
-})
-
-export const createNodeAtom = ({ 
-  id, 
-  position = [0, 0], 
-  name = "My Node",
-  fields = [{
-    id: uuid(),
-    name: "Default name"
-  }]
-}) => atom<Node>({ 
-  id, 
-  name, 
-  position: atom<Position>(position), 
-  fields: fields.map(createFieldAtom)
-})
-
-export const nodesAtom = atom<WritableAtom<Node, SetStateAction<Node>>[]>([])
 
 
 /**
@@ -65,6 +27,63 @@ export const connectionsAtom = atom<Connection[]>([])
 export function createConnection(input: Connector, output: Connector): Connection {
   return [makeConnectorId(input), makeConnectorId(output)]
 }
+
+/***
+ * Node
+ */
+export type Position = number[]
+
+export type NodeField = {
+  id: string,
+  name: string,
+}
+
+
+export const createFieldAtom = ({
+  id,
+  name,
+}) => atom<NodeField>({
+  id,
+  name
+})
+
+export type Node = {
+  id: string,
+  name: string,
+  position: WritableAtom<Position, Position>,
+  fields: WritableAtom<NodeField, SetStateAction<NodeField>>[]
+}
+
+export const createNodeAtom = ({ 
+  id, 
+  position = [0, 0], 
+  name = "My Node",
+  fields = [{
+    id: uuid(),
+    name: "Default name"
+  }]
+}) => atom<Node>({ 
+  id, 
+  name, 
+  position: atom<Position>(position), 
+  fields: fields.map(createFieldAtom)
+})
+
+export const nodesAtom = atom<WritableAtom<Node, SetStateAction<Node>>[]>([])
+
+const filterConnection = (id) => (connection: Connection) => connection.map(connectorId => connectorId.split('_')[1]).join('-').indexOf(id) < 0
+
+export const removeFieldAtom = (nodeAtom) => atom(null, (get, set, fieldId) => {
+  // cleanup connections
+  set(connectionsAtom, produce(connections => connections.filter(filterConnection(fieldId))))
+  // remove field from node fields
+  set(nodeAtom, produce(node => {
+    node.fields = node.fields.filter(fieldAtom => {
+      const { id } = get(fieldAtom)
+      return id !== fieldId
+    })
+  }))
+})
 
 
 /**

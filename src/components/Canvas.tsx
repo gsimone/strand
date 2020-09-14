@@ -9,7 +9,7 @@ import Strand, {PureStrand} from './Strand'
 import { createPortal } from 'react-dom';
 
 function TempLine() {
-  const [{ connecting, origin }] = useAtom(connectionStateAtom)
+  const [{ connecting, origin, destination }] = useAtom(connectionStateAtom)
   const [, stopConnecting] = useAtom(stopConnectingAtom)
   
   const [points, setPoints] = useState([])
@@ -25,16 +25,38 @@ function TempLine() {
     function handleMouse(e: MouseEvent) {
       if (connecting) {
 
-        pointer.current!.style.transform = `translate3D(${e.clientX}px, ${e.clientY}px, 0px)`
-        
         // @ts-expect-error
         const originPoint = connectorsRef.current[makeConnectorId(origin!)].current.getBoundingClientRect()
-        const offset = {x: originPoint.x > e.clientX ? 8 : -8, y: 0 }
+
+        let candidatePoint = { x: e.clientX, y: e.clientY }
+
+        // snap
+        if (destination) {
+          // @ts-expect-error
+          candidatePoint = connectorsRef.current?.[makeConnectorId(destination!)]!.current.getBoundingClientRect()
+
+          pointer.current!.style.transform = `
+            translate3D(${candidatePoint.x + 4}px, ${candidatePoint.y + 4}px, 0px)
+          `
+
+          setPoints(
+            // @ts-expect-error
+            calcLine(originPoint, { x: candidatePoint.x + 4, y: candidatePoint.y + 4 })
+          )
+          
+        } else {
+          pointer.current!.style.transform = `
+            translate3D(${candidatePoint.x}px, ${candidatePoint.y}px, 0px)
+          `
+          const offset = { x: originPoint.x > candidatePoint.x ? 8 : -8, y: 0 }
+
+          setPoints(
+            // @ts-expect-error
+            calcLine(originPoint, { x: candidatePoint.x + offset.x, y: candidatePoint.y + offset.y })
+          )
+        }
         
-        setPoints(
-        // @ts-expect-error
-          calcLine(originPoint, { x: e.clientX + offset.x, y: e.clientY + offset.y })
-        )
+        
       }
     }
     
@@ -45,7 +67,7 @@ function TempLine() {
       document.removeEventListener('mousemove', handleMouse)
       document.removeEventListener('contextmenu', cancel)
     }
-  }, [cancel, connecting, origin])
+  }, [cancel, connecting, destination, origin])
   
   return (
     <>

@@ -101,19 +101,22 @@ connectorsRef.current = {}
 
 type ConnectionState = {
   connecting: boolean,
-  origin: Connector | null
+  origin: Connector | null,
+  destination: Connector | null
 }
 
 export  const connectionStateAtom = atom<ConnectionState>({
   connecting: false,
-  origin: null
+  origin: null,
+  destination: null
 })
 
 export const stopConnectingAtom = atom(null, (_, set, _arg) => {
 
   set(connectionStateAtom, {
     connecting: false,
-    origin: null
+    origin: null,
+    destination: null
   })
 
 })

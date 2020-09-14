@@ -8,7 +8,8 @@ import {
   connectionsAtom, 
   createConnection,
   connectorsRef,
-  ConnectorDirection
+  ConnectorDirection,
+  stopConnectingAtom
 } from '../atoms'
 
 import { makeConnectorId } from '../utils'
@@ -23,6 +24,7 @@ export default function Connector({ node, field, direction }: ConnectorProps) {
   const connectorRef = useRef<HTMLDivElement>(null)
   
   const [connectionState, setConnectionState] = useAtom(connectionStateAtom);
+  const [, stopConnecting] = useAtom(stopConnectingAtom)
   const [, setConnections] = useAtom(connectionsAtom)
 
   /**
@@ -53,7 +55,10 @@ export default function Connector({ node, field, direction }: ConnectorProps) {
      * If we are already connecting, close a connection
      */
     if (connecting === true) {
-      setConnectionState({ connecting: false, origin: null })
+      // @TODO sub this with a reset atom
+      // @ts-expect-error
+      stopConnecting()
+      setConnectionState({ connecting: false, origin: null, destination: null })
       setConnections(produce(state => {
         state.push(createConnection(origin!, {field, node,direction}))
       }))
@@ -64,10 +69,27 @@ export default function Connector({ node, field, direction }: ConnectorProps) {
       }))
     }
     
-  }, [connecting, disabled, node, origin, setConnectionState, setConnections])
+  }, [connecting, disabled, node, origin, setConnectionState, setConnections, stopConnecting])
+
+  const handleMouseEnter = useCallback(() => {
+    if (connecting) {
+      setConnectionState(produce(state => {
+        state.destination = { field, node, direction }
+      }))
+    }
+  }, [connecting, direction, field, node, setConnectionState])
+
+  const handleMouseLeave = useCallback(() => {
+    if (connecting) {
+      setConnectionState(produce(state => {
+        state.destination = null
+      }))
+    }
+  }, [connecting, setConnectionState])
 
   return (
-    <span className={`
+    <span 
+      className={`
         flex
         w-2
         h-2
@@ -76,11 +98,15 @@ export default function Connector({ node, field, direction }: ConnectorProps) {
         items-center
       `}
       ref={connectorRef}
-      onMouseDownCapture={(e) => { 
-        handleClick(field, direction)
-        e.preventDefault()
-      }}
     >
+      <div className="absolute z-10 -m-2 w-6 h-6 rounded-full opacity-25"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onMouseDownCapture={(e) => { 
+          handleClick(field, direction)
+          e.preventDefault()
+        }}
+      />
       {candidate && <span className="animate-ping absolute inline-flex h-4 w-4 -ml-1 rounded-full bg-orange-400 opacity-75"></span>}
       <span 
         className={ clsx(

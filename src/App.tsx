@@ -2,13 +2,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Provider as Jotai, useAtom } from 'jotai'
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 
-
-import {  
-  deserializeStateAtom, createNodeAtom, nodesAtom } from './atoms'
+import { deserializeStateAtom, createNodeAtom, nodesAtom } from './atoms'
   
 import Node from './components/Node'
 import Canvas from './components/Canvas'
-import NodeDetails from './components/NodeDetails'
+import NodeDetails from './components/NodeDetails/NodeDetails'
 
 import data from './data.json'
 
@@ -64,7 +62,7 @@ function App() {
           <BrowserRouter>
             <Routes>
                 <Route 
-                  path="/" 
+                  path="/*" 
                   element={
                     <div>
                       <Canvas />

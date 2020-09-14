@@ -36,6 +36,7 @@ export type Position = number[]
 export type NodeField = {
   id: string,
   name: string,
+  description?: string,
 }
 
 

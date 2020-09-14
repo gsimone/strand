@@ -1,5 +1,5 @@
-import React, { SetStateAction, useCallback, useEffect, useRef } from "react";
-import { useAtom, WritableAtom } from 'jotai'
+import React, { useCallback, useEffect, useRef } from "react";
+import { PrimitiveAtom, useAtom } from 'jotai'
 
 import Connector from './Connector'
 
@@ -8,7 +8,7 @@ import produce from "immer";
 
 
 type FieldProps = {
-  fieldAtom: WritableAtom<FieldType, SetStateAction<FieldType>>,
+  fieldAtom: PrimitiveAtom<FieldType>,
   nodeId: string,
   onDelete: (deleteId) => void
 }

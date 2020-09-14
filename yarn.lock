@@ -6262,10 +6262,10 @@ jest@24.9.0:
     import-local "^2.0.0"
     jest-cli "^24.9.0"
 
-jotai@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/jotai/-/jotai-0.4.0.tgz#83d5eb3cdd7dd8d1e3fec73a57c1de50ac51c6fb"
-  integrity sha512-mWxexzJLyRFhMxcWj3aGEcw2macA20uxITB4FtHWGT8IY+CclgJoWWkt2K1OFn7GcwRciZHkjg14o+tPZGEFQA==
+jotai@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/jotai/-/jotai-0.5.0.tgz#9e3f0616ec3d2b12d20fd133b100e6e4d598c3fa"
+  integrity sha512-Pho+hfQpdqO6QqUuj951VC5IMOjQ7vTPQFRfaLt7gDpcQshgmlgaAqGzp+A8smhL084pIogg2KI7R1sCMoYHBw==
   dependencies:
     use-context-selector "^1.1.2"
 
@@ -10082,10 +10082,10 @@ table@^5.2.3:
     slice-ansi "^2.1.0"
     string-width "^3.0.0"
 
-tailwindcss@^1.8.8:
-  version "1.8.8"
-  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-1.8.8.tgz#f877fb8f001a6f1a7717431392b769952b66406d"
-  integrity sha512-MCaTFA+ae278rYeB0UTJAkWJMW5eYMMO6/XXBL0oo+SKuZCM4uCFskroHbMFvQSoA96sslFX2+tCPDOv1T7Tbw==
+tailwindcss@^1.8.9:
+  version "1.8.9"
+  resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-1.8.9.tgz#86aa05f019b4975675d1c67a2c9962d9c833ea13"
+  integrity sha512-VgoBxIyF+Ipf+x3eDz3tPA8A5blGBPkswA2xM6fxCmAwAmhlIr9Zk3exft44BUf3q9mxorvjCRtxBrklfPDSoQ==
   dependencies:
     "@fullhuman/postcss-purgecss" "^2.1.2"
     autoprefixer "^9.4.5"

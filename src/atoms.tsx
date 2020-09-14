@@ -1,5 +1,5 @@
-import { atom, WritableAtom } from 'jotai'
-import { createRef, Ref, SetStateAction } from 'react'
+import { atom, PrimitiveAtom } from 'jotai'
+import { createRef, Ref } from 'react'
 import produce from 'immer'
 import { makeConnectorId, uuid } from './utils'
 
@@ -50,8 +50,8 @@ export const createFieldAtom = ({
 export type Node = {
   id: string,
   name: string,
-  position: WritableAtom<Position, Position>,
-  fields: WritableAtom<NodeField, SetStateAction<NodeField>>[]
+  position: PrimitiveAtom<Position>,
+  fields: PrimitiveAtom<NodeField>[]
 }
 
 export const createNodeAtom = ({ 
@@ -69,7 +69,7 @@ export const createNodeAtom = ({
   fields: fields.map(createFieldAtom)
 })
 
-export const nodesAtom = atom<WritableAtom<Node, SetStateAction<Node>>[]>([])
+export const nodesAtom = atom<PrimitiveAtom<Node>[]>([])
 
 const filterConnection = (id) => (connection: Connection) => connection.map(connectorId => connectorId.split('_')[1]).join('-').indexOf(id) < 0
 

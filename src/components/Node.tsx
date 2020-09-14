@@ -1,5 +1,5 @@
-import React, { SetStateAction, useCallback, useRef } from "react";
-import { useAtom, WritableAtom } from 'jotai'
+import React, { useCallback, useRef } from "react";
+import { PrimitiveAtom, useAtom } from 'jotai'
 
 import NodePosition from './NodePosition'
 import Field from './Field'
@@ -10,7 +10,7 @@ import { uuid } from "utils";
 import clsx from "clsx";
 
 type NodeProps = {
-  nodeAtom: WritableAtom<NodeType, SetStateAction<NodeType>>
+  nodeAtom: PrimitiveAtom<NodeType>
 }
 
 export default function Node({ nodeAtom }: NodeProps) {

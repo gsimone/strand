@@ -1,12 +1,12 @@
 import React, { useCallback,useRef, useEffect, Ref } from "react";
-import { useAtom, WritableAtom } from 'jotai'
+import { PrimitiveAtom, useAtom } from 'jotai'
 
 import { Position } from '../atoms'
 import { decimalPlaces } from '../utils'
 
 type NodePositionProps = {
   nodeRef: Ref<HTMLDivElement>,
-  positionAtom: WritableAtom<Position, Position>,
+  positionAtom: PrimitiveAtom<Position>,
   children: JSX.Element
 }
 

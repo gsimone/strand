@@ -51,7 +51,7 @@ export default function Node({ nodeAtom }: NodeProps) {
 
             <span className="w-4 h-4">
               <Link to={`nodes/${id}`}>
-              <Edit />
+                <Edit />
               </Link>
             </span>
           </div>
@@ -59,7 +59,7 @@ export default function Node({ nodeAtom }: NodeProps) {
 
         <div className="mt-2 p-2 ">
           {fieldAtoms.map((field, i) => <Field onDelete={deleteField} nodeId={id} fieldAtom={field} key={i} />)}
-          <button onClick={addField} className="text-gray-600 hover:text-green-500 w-4 h-4 m-auto block">
+          <button onClick={addField} className="mt-4 text-gray-600 hover:text-green-500 w-4 h-4 m-auto block">
             <CircleAdd />
           </button>
         </div>

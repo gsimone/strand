@@ -5,6 +5,7 @@ import Connector from './Connector'
 
 import { ConnectorDirection, NodeField as FieldType } from '../atoms'
 import produce from "immer";
+import Close from "icons/close";
 
 
 type FieldProps = {
@@ -32,12 +33,18 @@ function Field({ fieldAtom, nodeId, onDelete }: FieldProps) {
   return (
     <div key={id} className="flex space-x-2 items-center group">
       <Connector node={nodeId} field={id} direction={ConnectorDirection.input} />
-      <div className="flex-1 mb-2 group">
-        <input ref={inputRef} className="bg-transparent" value={name} onChange={handleChange} />
-        <div>
+      <div className="flex-1">
+        <div className="relative group flex items-center">
+          <input ref={inputRef} className="flex-1 p-1 px-2 bg-transparent" value={name} onChange={handleChange} />
+          <button className="font-bold text-red-600 text-xs absolute right-0 mr-3 opacity-0 group-hover:opacity-100" onClick={() => onDelete(id)}>
+            Delete
+          </button>
+        </div>
+        
+        {/* <div>
           <span className="text-xs text-gray-600">{id}</span> 
           <button className="opacity-25 group-hover:opacity-100 p-2" onClick={() => onDelete(id)}>Delete field</button>
-        </div>
+        </div> */}
       </div>
       <Connector node={nodeId} field={id} direction={ConnectorDirection.output} />
     </div>

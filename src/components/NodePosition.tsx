@@ -2,7 +2,6 @@ import React, { useCallback,useRef, useEffect, Ref } from "react";
 import { PrimitiveAtom, useAtom } from 'jotai'
 
 import { Position } from '../atoms'
-import { decimalPlaces } from '../utils'
 
 type NodePositionProps = {
   nodeRef: Ref<HTMLDivElement>,
@@ -24,7 +23,7 @@ export default function NodePosition({
 
     const [relX, relY] = [e.clientX - originX, e.clientY - originY];
 
-    offset.current = [decimalPlaces(relX), decimalPlaces(relY)];
+    offset.current = [relX, relY];
     window.addEventListener("mousemove", handleMovement);
     window.addEventListener("mouseup", stopMoving);
   }

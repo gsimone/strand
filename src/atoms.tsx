@@ -3,9 +3,6 @@ import { createRef, Ref } from 'react'
 import produce from 'immer'
 import { makeConnectorId, uuid } from './utils'
 
-
-
-
 /**
  * Creating connections
  */
@@ -102,12 +99,23 @@ export const connectorsRef = createRef<ConnectorsRefMap>()
 // @ts-expect-error
 connectorsRef.current = {}
 
-export  const connectionStateAtom = atom<{
+type ConnectionState = {
   connecting: boolean,
   origin: Connector | null
-}>({
+}
+
+export  const connectionStateAtom = atom<ConnectionState>({
   connecting: false,
   origin: null
+})
+
+export const stopConnectingAtom = atom(null, (_, set, _arg) => {
+
+  set(connectionStateAtom, {
+    connecting: false,
+    origin: null
+  })
+
 })
 
 /**

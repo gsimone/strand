@@ -1,40 +1,61 @@
 
 import { useAtom } from 'jotai';
-import React, {useRef, useEffect } from 'react' 
+import React, { useRef, useEffect, useState, useCallback } from 'react' 
 
-import { connectionsAtom } from '../atoms';
+import { connectionsAtom, connectionStateAtom, stopConnectingAtom, connectorsRef } from 'atoms';
+import {makeConnectorId, calcLine} from 'utils'
 
-import Strand from './Strand'
+import Strand, {PureStrand} from './Strand'
+import { createPortal } from 'react-dom';
 
-export default function Canvas() {
-  const [connections] = useAtom(connectionsAtom)
-  // const [{ connecting, origin }] = useAtom(connectionStateAtom)
-  const svg = useRef<SVGSVGElement>(null);
+function TempLine() {
+  const [{ connecting, origin }] = useAtom(connectionStateAtom)
+  const [, stopConnecting] = useAtom(stopConnectingAtom)
   
-  const mouse = useRef<number[]>([0, 0])
+  const [points, setPoints] = useState([])
+  const pointer = useRef<HTMLDivElement>(null)
   
-  // const draw = useCallback(
-  //   function draw() {
-  //     if (connecting) {
-  //       const fakeLine =  calcLine(
-  //         // @ts-expect-error
-  //         connectorsRef.current[makeConnectorId(origin)].current.getBoundingClientRect(),
-  //         { x: mouse.current[0], y: mouse.current[1], width: 10, height: 10 }, 
-  //       )
-  //     }
-  //   },
-  //   [connecting, connections, origin]
-  // );
-
+  const cancel = useCallback((e) => {
+    e.preventDefault()
+    // @ts-expect-error
+    stopConnecting()
+  }, [stopConnecting])
+  
   useEffect(() => {
     function handleMouse(e: MouseEvent) {
-      mouse.current = [e.clientX, e.clientY] 
+      if (connecting) {
+
+        pointer.current!.style.transform = `translate3D(${e.clientX}px, ${e.clientY}px, 0px)`
+        
+        setPoints(
+          // @ts-expect-error
+          calcLine(connectorsRef.current[makeConnectorId(origin!)].current.getBoundingClientRect(), { x: e.clientX - 8, y: e.clientY })
+        )
+      }
     }
     
     document.addEventListener('mousemove', handleMouse)
+    document.addEventListener('contextmenu', cancel)
 
-    return () => document.removeEventListener('mousemove', handleMouse)
-  }, [])
+    return () => {
+      document.removeEventListener('mousemove', handleMouse)
+      document.removeEventListener('contextmenu', cancel)
+    }
+  }, [cancel, connecting, origin])
+  
+  return (
+    <>
+      {createPortal(<div ref={pointer} className="pointer-events-none fixed z-10 w-4 h-4 top-0 left-0 rounded-full -m-2 border-2 border-white" />, document.querySelector('#test')!)}
+      <PureStrand points={points} />
+    </>
+  )
+
+}
+
+export default function Canvas() {
+  const [connections] = useAtom(connectionsAtom)
+  const [{ connecting }] = useAtom(connectionStateAtom)
+  const svg = useRef<SVGSVGElement>(null);
 
   return (
     <svg
@@ -52,6 +73,7 @@ export default function Canvas() {
       }}
     >
       {connections.map((connection, i) => (<Strand key={connection.join('.')} connection={connection} />))}
+      {connecting && <TempLine />}
     </svg>
   );
 }

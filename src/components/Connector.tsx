@@ -76,8 +76,9 @@ export default function Connector({ node, field, direction }: ConnectorProps) {
         items-center
       `}
       ref={connectorRef}
-      onMouseDown={() => { 
+      onMouseDownCapture={(e) => { 
         handleClick(field, direction)
+        e.preventDefault()
       }}
     >
       {candidate && <span className="animate-ping absolute inline-flex h-4 w-4 -ml-1 rounded-full bg-orange-400 opacity-75"></span>}

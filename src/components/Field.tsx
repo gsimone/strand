@@ -23,8 +23,9 @@ function Field({ fieldAtom, nodeId, onDelete }: FieldProps) {
   }, [])
 
   const handleChange = useCallback((e)=>{
+    const value = e.target.value
     setField(produce(field => {
-      field.name = e.target.value
+      field.name = value
     }))
   }, [setField])
   

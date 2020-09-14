@@ -10,6 +10,7 @@ import { uuid } from "utils";
 import clsx from "clsx";
 import Edit from "icons/edit";
 import { Link } from "react-router-dom";
+import CircleAdd from "icons/circle-add";
 
 type NodeProps = {
   nodeAtom: PrimitiveAtom<NodeType>
@@ -58,7 +59,9 @@ export default function Node({ nodeAtom }: NodeProps) {
 
         <div className="mt-2 p-2 ">
           {fieldAtoms.map((field, i) => <Field onDelete={deleteField} nodeId={id} fieldAtom={field} key={i} />)}
-          <button onClick={addField}>Add field</button>
+          <button onClick={addField} className="text-gray-600 hover:text-green-500 w-4 h-4 m-auto block">
+            <CircleAdd />
+          </button>
         </div>
     </div>
   );

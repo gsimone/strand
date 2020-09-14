@@ -33,7 +33,7 @@ function Field({ fieldAtom, nodeId, onDelete }: FieldProps) {
     <div key={id} className="flex space-x-2 items-center group">
       <Connector node={nodeId} field={id} direction={ConnectorDirection.input} />
       <div className="flex-1 mb-2 group">
-        <input ref={inputRef} className="bg-transparent" defaultValue={name} onChange={handleChange} />
+        <input ref={inputRef} className="bg-transparent" value={name} onChange={handleChange} />
         <div>
           <span className="text-xs text-gray-600">{id}</span> 
           <button className="opacity-25 group-hover:opacity-100 p-2" onClick={() => onDelete(id)}>Delete field</button>

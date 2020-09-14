@@ -15,3 +15,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+.form-input {
+  @apply w-full bg-gray-900 text-white p-2 px-3 leading-6 rounded-md;
+  appearance: none;
+}
+
+button:disabled {
+  @apply opacity-25 cursor-not-allowed;
+}

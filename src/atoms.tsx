@@ -85,6 +85,10 @@ export const removeFieldAtom = (nodeAtom) => atom(null, (get, set, fieldId) => {
   }))
 })
 
+export const getNodeAtomById = (id: string) => atom(get => {
+  const nodes = get(nodesAtom)
+  return nodes.find(nodeAtom => get(nodeAtom).id === id)
+})
 
 /**
  * Holds refs for all connectors, used to draw the lines

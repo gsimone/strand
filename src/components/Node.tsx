@@ -8,6 +8,8 @@ import {  removeFieldAtom, createFieldAtom, Node as NodeType } from '../atoms'
 import produce from "immer";
 import { uuid } from "utils";
 import clsx from "clsx";
+import Edit from "icons/edit";
+import { Link } from "react-router-dom";
 
 type NodeProps = {
   nodeAtom: PrimitiveAtom<NodeType>
@@ -43,8 +45,14 @@ export default function Node({ nodeAtom }: NodeProps) {
       ref={nodeRef}
     >
         <NodePosition nodeRef={nodeRef} positionAtom={position} >
-          <div className="text-xs font-bold py-2 px-6 bg-gray-100 text-gray-800" >
-            {name}
+          <div className="flex justify-between text-xs font-bold py-2 pb-1 px-4 bg-gray-100 text-gray-800" >
+            <span>{name}</span>
+
+            <span className="w-4 h-4">
+              <Link to={`nodes/${id}`}>
+              <Edit />
+              </Link>
+            </span>
           </div>
         </NodePosition>
 

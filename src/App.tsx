@@ -1,22 +1,19 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Provider as Jotai, useAtom } from 'jotai'
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+
 
 import {  
   deserializeStateAtom, createNodeAtom, nodesAtom } from './atoms'
-
+  
 import Node from './components/Node'
 import Canvas from './components/Canvas'
+import NodeDetails from './components/NodeDetails'
 
 import data from './data.json'
 
-
 function Nodes() {
   const [nodes, setNodes] = useAtom(nodesAtom);
-  const [, deserializeState] = useAtom(deserializeStateAtom)
-
-  useEffect(() => {
-    deserializeState(data)
-  }, [deserializeState])
 
   const onAdd = useCallback(() => {
     setNodes(state => [ ...state, createNodeAtom({ id: new Date().getTime() }) ])
@@ -31,6 +28,20 @@ function Nodes() {
       </div>
     </div>
   )
+}
+
+function LocalStateManager({ children }) {
+
+  const [restored, set] = useState(false)
+  const [, deserializeState] = useAtom(deserializeStateAtom)
+
+  useEffect(() => {
+    deserializeState(data)
+    set(true)
+  }, [deserializeState])
+  
+  return (restored ? children : "Loading")
+
 }
 
 function App() {
@@ -49,8 +60,24 @@ function App() {
       "
     >
       <Jotai>
-        <Nodes />
-        <Canvas />
+        <LocalStateManager>
+          <BrowserRouter>
+            <Routes>
+                <Route 
+                  path="/" 
+                  element={
+                    <div>
+                      <Canvas />
+                      <Nodes />
+                      <Outlet />
+                    </div>
+                  } 
+                >
+                  <Route path="/nodes/*" element={<NodeDetails />} />
+                </Route>
+              </Routes>
+          </BrowserRouter>
+        </LocalStateManager>
       </Jotai>
     </div>
   );

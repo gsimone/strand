@@ -1,29 +1,29 @@
 {
   "nodes": [
     {
-      "id": "node-1",
+      "id": "tricky-chicken-23",
       "name": "My node",
       "position": [
-        254.00000762939453,
-        133.00000762939453
+        54,
+        133
       ],
       "fields": [
         {
-          "id": "field-1382",
+          "id": "brave-ladybug-90",
           "name": "My field"
         }
       ]
     },
     {
-      "id": 1599659486118,
+      "id": "1599659486118",
       "name": "Another node",
       "position": [
-        526,
-        164
+        320,
+        264
       ],
       "fields": [
         {
-          "id": "field-148",
+          "id": "quick-cobra-15",
           "name": "My field"
         }
       ]
@@ -31,8 +31,8 @@
   ],
   "connections": [
     [
-      "node-1_field-1382_OUTPUT",
-      "1599659486118_field-148_INPUT"
+      "tricky-chicken-23_brave-ladybug-90_OUTPUT",
+      "1599659486118_quick-cobra-15_INPUT"
     ]
   ]
 }

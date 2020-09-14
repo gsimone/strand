@@ -41,10 +41,11 @@ const createConnectedNodesPositions = (connection: Connection) => atom(get => {
 
 type PureStrandProps = {
   points: number[] | undefined,
-  onContextMenuCapture?: (e: any) => void
+  onContextMenuCapture?: (e: any) => void,
+  notInteractive?: boolean
 }
 
-export function PureStrand({ points, onContextMenuCapture }: PureStrandProps) {
+export function PureStrand({ points, onContextMenuCapture, notInteractive }: PureStrandProps) {
   
   const pathRef = useRef<SVGGElement>(null)
 
@@ -71,7 +72,7 @@ export function PureStrand({ points, onContextMenuCapture }: PureStrandProps) {
   })
 
   return (
-    <g className="cursor-pointer hover:text-red-500"  ref={pathRef}>
+    <g className={notInteractive ? "" : "cursor-pointer hover:text-red-500"}  ref={pathRef}>
       <path strokeWidth={2} className={`stroke-current`} />
       <path strokeWidth={15} style={{ opacity: 0 }} onContextMenuCapture={onContextMenuCapture} />
     </g>

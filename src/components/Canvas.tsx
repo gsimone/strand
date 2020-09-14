@@ -27,9 +27,13 @@ function TempLine() {
 
         pointer.current!.style.transform = `translate3D(${e.clientX}px, ${e.clientY}px, 0px)`
         
+        // @ts-expect-error
+        const originPoint = connectorsRef.current[makeConnectorId(origin!)].current.getBoundingClientRect()
+        const offset = {x: originPoint.x > e.clientX ? 8 : -8, y: 0 }
+        
         setPoints(
-          // @ts-expect-error
-          calcLine(connectorsRef.current[makeConnectorId(origin!)].current.getBoundingClientRect(), { x: e.clientX - 8, y: e.clientY })
+        // @ts-expect-error
+          calcLine(originPoint, { x: e.clientX + offset.x, y: e.clientY + offset.y })
         )
       }
     }
@@ -46,7 +50,7 @@ function TempLine() {
   return (
     <>
       {createPortal(<div ref={pointer} className="pointer-events-none fixed z-10 w-4 h-4 top-0 left-0 rounded-full -m-2 border-2 border-white" />, document.querySelector('#test')!)}
-      <PureStrand points={points} />
+      <PureStrand points={points} notInteractive />
     </>
   )
 

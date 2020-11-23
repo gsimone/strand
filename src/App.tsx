@@ -62,7 +62,7 @@ function App() {
           <BrowserRouter>
             <Routes>
                 <Route 
-                  path="/*" 
+                  path="*" 
                   element={
                     <div>
                       <Canvas />

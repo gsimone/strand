@@ -1,8 +1,6 @@
 
-import { atom, useAtom } from 'jotai';
 import React, {useRef, useCallback, useMemo, useLayoutEffect, useState} from 'react' 
-import throttle from 'lodash.throttle'
-
+import { atom, useAtom } from 'jotai';
 import produce from 'immer';
 
 import { Connection, connectionsAtom, connectorsRef, nodesAtom } from '../atoms';
@@ -49,7 +47,7 @@ export function PureStrand({ points, onContextMenuCapture, notInteractive }: Pur
   
   const pathRef = useRef<SVGGElement>(null)
 
-  const draw = useCallback(throttle(() => {
+  const draw = useCallback(() => requestAnimationFrame(() => {
     if (points) {
       const [x,y,x2,y2] = points
     
@@ -63,7 +61,7 @@ export function PureStrand({ points, onContextMenuCapture, notInteractive }: Pur
       pathRef.current!.children[0].setAttribute('d', line)
       pathRef.current!.children[1].setAttribute('d', line)
     }
-    }, 17, { trailing: true }), 
+    }), 
     [points]
   )
 

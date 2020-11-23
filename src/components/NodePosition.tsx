@@ -9,6 +9,8 @@ type NodePositionProps = {
   children: JSX.Element
 }
 
+
+
 export default function NodePosition({ 
   nodeRef, 
   positionAtom, 
@@ -16,6 +18,13 @@ export default function NodePosition({
 }: NodePositionProps) {
   const [position, setPosition] = useAtom(positionAtom)
   const offset = useRef<number[]>([]);
+
+  function mouseEventToPosition(e: MouseEvent) {
+    return [
+      e.clientX - offset.current[0],
+      e.clientY - offset.current[1],
+    ];
+  }
 
   function startMoving(e: MouseEvent) {
     // @ts-ignore
@@ -28,22 +37,17 @@ export default function NodePosition({
     window.addEventListener("mouseup", stopMoving);
   }
 
-  function stopMoving() {
+  function stopMoving(e: MouseEvent) {
+    setPosition(mouseEventToPosition(e))
+
     window.removeEventListener("mousemove", handleMovement);
     window.removeEventListener("mouseup", stopMoving);
   }
   
   const handleMovement = useCallback((e: MouseEvent) => {
     e.preventDefault();
-
-    const [x, y] = [
-      e.clientX - offset.current[0],
-      e.clientY - offset.current[1],
-    ];
-
-    setPosition([x,y])
-
-  }, [offset, setPosition]);
+    setPosition(mouseEventToPosition(e))
+  }, [setPosition]);
   
   useEffect(() => {
 

@@ -20,9 +20,9 @@ export default function NodeDetail() {
         <div className="flex justify-between items-center  mb-10">
           <h3 className="font-bold uppercase">{node.name}</h3>
           <div className="w-5 h-5">
-          <Link to="/">
+          {/* <Link to="/"> */}
             <Close />
-          </Link>
+          {/* </Link> */}
           </div>
         </div>
 

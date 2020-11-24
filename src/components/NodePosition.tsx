@@ -2,22 +2,32 @@ import React, { useCallback,useRef, useEffect, Ref } from "react";
 import { PrimitiveAtom, useAtom } from 'jotai'
 
 import { Position } from '../atoms'
+import { useStore } from '../store';
 
 type NodePositionProps = {
   nodeRef: Ref<HTMLDivElement>,
-  positionAtom: PrimitiveAtom<Position>,
+  id: number,
   children: JSX.Element
 }
 
-
-
-export default function NodePosition({ 
+function NodePosition({ 
+  id,
   nodeRef, 
-  positionAtom, 
   children
 }: NodePositionProps) {
-  const [position, setPosition] = useAtom(positionAtom)
   const offset = useRef<number[]>([]);
+  const setPosition = useStore(store => store.setPosition)
+
+  useEffect(() =>  useStore.subscribe((position: Position | undefined) => {
+      if (position ) {
+        const [x,y] = position
+      // @ts-ignore
+        nodeRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      }
+    },
+    store => store.positions.get(id)),
+    [id, nodeRef]
+  )
 
   function mouseEventToPosition(e: MouseEvent) {
     return [
@@ -38,7 +48,7 @@ export default function NodePosition({
   }
 
   function stopMoving(e: MouseEvent) {
-    setPosition(mouseEventToPosition(e))
+    setPosition(id, mouseEventToPosition(e))
 
     window.removeEventListener("mousemove", handleMovement);
     window.removeEventListener("mouseup", stopMoving);
@@ -46,18 +56,9 @@ export default function NodePosition({
   
   const handleMovement = useCallback((e: MouseEvent) => {
     e.preventDefault();
-    setPosition(mouseEventToPosition(e))
-  }, [setPosition]);
+    setPosition(id, mouseEventToPosition(e))
+  }, [id, setPosition]);
   
-  useEffect(() => {
-
-    const [x,y] = position
-
-    // @ts-ignore
-    nodeRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    
-  }, [nodeRef, position])
-
   return (
     <div
       // @ts-ignore
@@ -70,3 +71,5 @@ export default function NodePosition({
     </div>
   )
 }
+
+export default React.memo(NodePosition)

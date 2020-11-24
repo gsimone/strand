@@ -2,22 +2,21 @@
 import { useAtom } from 'jotai';
 import React, { useRef, useEffect, useState, useCallback } from 'react' 
 
-import { connectionsAtom, connectionStateAtom, stopConnectingAtom, connectorsRef } from 'atoms';
 import {makeConnectorId, calcLine} from 'utils'
 
 import Strand, {PureStrand} from './Strand'
 import { createPortal } from 'react-dom';
+import { useConnectionStore, useConnectorsStore, useStore } from '../store';
 
 function TempLine() {
-  const [{ connecting, origin, destination }] = useAtom(connectionStateAtom)
-  const [, stopConnecting] = useAtom(stopConnectingAtom)
+  const { connecting, origin, destination, stopConnecting } = useConnectionStore()
+  const connectors = useConnectorsStore(store => store.connectors)
   
   const [points, setPoints] = useState([])
   const pointer = useRef<HTMLDivElement>(null)
   
   const cancel = useCallback((e) => {
     e.preventDefault()
-    // @ts-expect-error
     stopConnecting()
   }, [stopConnecting])
   
@@ -26,14 +25,14 @@ function TempLine() {
       if (connecting) {
 
         // @ts-expect-error
-        const originPoint = connectorsRef.current[makeConnectorId(origin!)].current.getBoundingClientRect()
+        const originPoint = connectors.get(makeConnectorId(origin!)).current.getBoundingClientRect()
 
         let candidatePoint = { x: e.clientX, y: e.clientY }
 
         // snap
         if (destination) {
           // @ts-expect-error
-          candidatePoint = connectorsRef.current?.[makeConnectorId(destination!)]!.current.getBoundingClientRect()
+          candidatePoint = connectors.get(makeConnectorId(destination!)).current.getBoundingClientRect()
 
           pointer.current!.style.transform = `
             translate3D(${candidatePoint.x + 4}px, ${candidatePoint.y + 4}px, 0px)
@@ -67,7 +66,7 @@ function TempLine() {
       document.removeEventListener('mousemove', handleMouse)
       document.removeEventListener('contextmenu', cancel)
     }
-  }, [cancel, connecting, destination, origin])
+  }, [cancel, connecting, connectors, destination, origin])
   
   return (
     <>
@@ -79,8 +78,8 @@ function TempLine() {
 }
 
 export default function Canvas() {
-  const [connections] = useAtom(connectionsAtom)
-  const [{ connecting }] = useAtom(connectionStateAtom)
+  const connections = useStore(state => state.connections)
+  const connecting = useConnectionStore(state => state.connecting)
   const svg = useRef<SVGSVGElement>(null);
 
   return (

@@ -1,32 +1,30 @@
 import React, { useCallback, useEffect, useRef } from "react";
-import { PrimitiveAtom, useAtom } from 'jotai'
-
 import Connector from './Connector'
 
-import { ConnectorDirection, NodeField as FieldType } from '../atoms'
-import produce from "immer";
+import { ConnectorDirection, FieldStore, NodeStore } from '../store';
 
 type FieldProps = {
-  fieldAtom: PrimitiveAtom<FieldType>,
-  nodeId: string,
-  onDelete: (deleteId) => void
+  useField: FieldStore,
+  useNode: NodeStore
 }
 
-function Field({ fieldAtom, nodeId, onDelete }: FieldProps) {
+function Field({ useField, useNode }: FieldProps) {
+  const nodeId = useNode(state => state.id)
+  const { id, name, setValue } = useField()
+  const removeField = useNode(state => state.removeField)
 
-  const [{ id, name }, setField] = useAtom(fieldAtom)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     inputRef!.current!.focus()
   }, [])
 
-  const handleChange = useCallback((e)=>{
+  const handleNameChange = useCallback((e)=>{
     const value = e.target.value
-    setField(produce(field => {
-      field.name = value
-    }))
-  }, [setField])
+    setValue({
+      name: value
+    })
+  }, [setValue])
   
   return (
     <div key={id} className="flex space-x-2 items-center">
@@ -34,8 +32,12 @@ function Field({ fieldAtom, nodeId, onDelete }: FieldProps) {
       <div className="flex-1">
 
         <div className="relative group flex items-center">
-          <input ref={inputRef} className="flex-1 p-1 px-2 bg-transparent" value={name} onChange={handleChange} />
-          <button tabIndex={-1} className="font-bold text-red-600 text-xs absolute right-0 mr-3 opacity-0 group-hover:opacity-100" onClick={() => onDelete(id)}>
+          <input ref={inputRef} className="flex-1 p-1 px-2 bg-transparent" value={name} onChange={handleNameChange} />
+          <button 
+            tabIndex={-1} 
+            className="font-bold text-red-600 text-xs absolute right-0 mr-3 opacity-0 group-hover:opacity-100" 
+            onClick={() => removeField(id)}
+          >
             Delete
           </button>
         </div>
@@ -46,4 +48,11 @@ function Field({ fieldAtom, nodeId, onDelete }: FieldProps) {
   )
 }
 
-export default Field
+export default function ConnectedField({ id, useNode }) {
+  const useField = useNode(state => state.fields.get(id))
+ 
+  if (typeof useField !== "undefined") return <Field useField={useField} useNode={useNode} />
+   
+  return null
+}
+

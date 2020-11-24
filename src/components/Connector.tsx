@@ -1,42 +1,28 @@
 import React, { useCallback, useEffect, useRef } from 'react'
-import { useAtom } from 'jotai'
 import clsx from 'clsx'
 import produce from 'immer';
 
-import { 
-  connectionStateAtom, 
-  connectionsAtom, 
-  createConnection,
-  connectorsRef,
-  ConnectorDirection,
-  stopConnectingAtom
-} from '../atoms'
-
 import { makeConnectorId } from '../utils'
+import { useConnectionStore, ConnectorDirection, useStore, useConnectorsStore } from '../store';
 
 type ConnectorProps = {
-  node: string,
-  field: string,
+  node: number,
+  field: number,
   direction: ConnectorDirection
 }
 
 export default function Connector({ node, field, direction }: ConnectorProps) {
   const connectorRef = useRef<HTMLDivElement>(null)
-  
-  const [connectionState, setConnectionState] = useAtom(connectionStateAtom);
-  const [, stopConnecting] = useAtom(stopConnectingAtom)
-  const [, setConnections] = useAtom(connectionsAtom)
+  const [registerConnector, unregisterConnector] = useConnectorsStore(state => [state.registerConnector, state.unregisterConnector])
+  const connectorId = makeConnectorId({ node, field, direction })
 
-  /**
-   * Register the connector ref, will be used to draw the connection lines
-   */
   useEffect(() => {
-    const id = makeConnectorId({ node, field, direction })
-    // @ts-expect-error
-    connectorsRef.current[id] = connectorRef
-  }, [direction, node, field])
-
-  const { connecting, origin } = connectionState
+    registerConnector(connectorId, connectorRef)
+    return () => unregisterConnector(connectorId)
+  }, [connectorId, registerConnector, unregisterConnector])
+  
+  const addConnection = useStore(store => store.addConnection)
+  const { origin, connecting, startConnecting } = useConnectionStore()
 
   // disable a connection when one the same direction is set
   const disabled = origin?.node === node || origin?.direction === direction;
@@ -48,44 +34,34 @@ export default function Connector({ node, field, direction }: ConnectorProps) {
   const candidate = connecting && !disabled && direction !== origin?.direction
 
   const handleClick = useCallback((field, direction) => {
-
     if (disabled) return
     
     /**
      * If we are already connecting, close a connection
      */
     if (connecting === true) {
-      // @TODO sub this with a reset atom
-      // @ts-expect-error
-      stopConnecting()
-      setConnectionState({ connecting: false, origin: null, destination: null })
-      setConnections(produce(state => {
-        state.push(createConnection(origin!, {field, node,direction}))
-      }))
+      addConnection(origin!, {field,node,direction})
     }  else {
-      setConnectionState(produce(state => {
-        state.connecting = true
-        state.origin = { field, node, direction }
-      }))
+      startConnecting({ field, node, direction })
     }
     
-  }, [connecting, disabled, node, origin, setConnectionState, setConnections, stopConnecting])
+  }, [addConnection, connecting, disabled, node, origin, startConnecting])
 
   const handleMouseEnter = useCallback(() => {
     if (connecting) {
-      setConnectionState(produce(state => {
+      useConnectionStore.setState(produce(state => {
         state.destination = { field, node, direction }
       }))
     }
-  }, [connecting, direction, field, node, setConnectionState])
+  }, [connecting, direction, field, node])
 
   const handleMouseLeave = useCallback(() => {
     if (connecting) {
-      setConnectionState(produce(state => {
+      useConnectionStore.setState(produce(state => {
         state.destination = null
       }))
     }
-  }, [connecting, setConnectionState])
+  }, [connecting])
 
   return (
     <span 
@@ -113,7 +89,8 @@ export default function Connector({ node, field, direction }: ConnectorProps) {
           `relative inline-flex rounded-full h-2 w-2 border`, 
           !active && !candidate && !disabled && `hover:border-green-500`,
           candidate && `border-orange-500 hover:bg-orange-500`,
-          active && `bg-green-500 border-green-500`
+          disabled && !active && `opacity-50 transform scale-50`,
+          active && `bg-green-500 border-green-500`,
         )}
       />
     </span>

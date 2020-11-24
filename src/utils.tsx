@@ -1,5 +1,5 @@
 import {hri} from 'human-readable-ids'
-import { Connector } from './atoms'
+import { Connector } from './store'
 
 export function makeConnectorId({ node, field, direction }: Connector) {
   return `${node}_${field}_${direction}`

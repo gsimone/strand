@@ -1,37 +1,26 @@
 import React, { useCallback, useRef } from "react";
-import { PrimitiveAtom, useAtom } from 'jotai'
 
 import NodePosition from './NodePosition'
 import Field from './Field'
 
-import {  removeFieldAtom, createFieldAtom, Node as NodeType } from '../atoms'
-import produce from "immer";
-import { uuid } from "utils";
 import clsx from "clsx";
 import Edit from "icons/edit";
 import { Link } from "react-router-dom";
 import CircleAdd from "icons/circle-add";
+import { useStore, NodeStore } from '../store';
 
 type NodeProps = {
-  nodeAtom: PrimitiveAtom<NodeType>
+  useNode: NodeStore
 }
 
-export default function Node({ nodeAtom }: NodeProps) {
-  const [{ position, id, name, fields: fieldAtoms }, setNode] = useAtom(nodeAtom);
-  const [, removeField] = useAtom(removeFieldAtom(nodeAtom))
+function Node({ useNode }: NodeProps) {
+  const { id, name, fields, addField } = useNode();
 
   const nodeRef = useRef<HTMLDivElement>(null);
 
-  const addField = useCallback(() => {
-    setNode(produce(node => {
-      node.fields.push(createFieldAtom({ id: uuid(), name: "New field "}))
-    }))
-  }, [setNode])
-
-  const deleteField = useCallback((deleteId) => {
-    // @ts-ignore
-    removeField(deleteId)
-  }, [removeField])
+  const handleAddField = useCallback(() => {
+    addField()
+  }, [addField])
 
   const active = true
 
@@ -45,24 +34,33 @@ export default function Node({ nodeAtom }: NodeProps) {
       style={{ transform: `translate3d(0, 0, .1)` }}
       ref={nodeRef}
     >
-        <NodePosition nodeRef={nodeRef} positionAtom={position} >
+        <NodePosition id={id} nodeRef={nodeRef}>
           <div className="flex justify-between text-xs font-bold py-2 pb-1 px-4 bg-gray-100 text-gray-800" >
             <span>{name}</span>
 
             <span className="w-4 h-4">
-              <Link to={`nodes/${id}`}>
+              {/* <Link to={`nodes/${id}`}> */}
                 <Edit />
-              </Link>
+              {/* </Link> */}
             </span>
           </div>
         </NodePosition>
 
         <div className="mt-2 p-2 ">
-          {fieldAtoms.map((field, i) => <Field onDelete={deleteField} nodeId={id} fieldAtom={field} key={i} />)}
-          <button onClick={addField} className="mt-4 text-gray-600 hover:text-green-500 w-4 h-4 m-auto block">
+          {Array.from(fields).map(([id], i) => <Field id={id} key={id} useNode={useNode} />)}
+          <button onClick={handleAddField} className="mt-4 text-gray-600 hover:text-green-500 w-4 h-4 m-auto block">
             <CircleAdd />
           </button>
         </div>
     </div>
   );
 }
+
+
+export default function ConnectedNode({ id }) {
+  const useNode = useStore(store => store.nodes.get(id))
+
+  if (typeof useNode !== "undefined") return <Node useNode={useNode!} /> 
+
+  return null
+} 

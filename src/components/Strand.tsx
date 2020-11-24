@@ -1,11 +1,8 @@
 
-import React, {useRef, useCallback, useMemo, useLayoutEffect, useState} from 'react' 
-import { atom, useAtom } from 'jotai';
-import produce from 'immer';
-
-import { Connection, connectionsAtom, connectorsRef, nodesAtom } from '../atoms';
+import React, {useRef, useCallback, useLayoutEffect } from 'react' 
 
 import { calcLine } from 'utils'
+import { useConnectorsStore, Connection, useStore } from '../store';
 
 type StrandProps = {
   connection: Connection
@@ -14,28 +11,6 @@ type StrandProps = {
 function getNodeIDFromConnectionID(connectionID) {
   return connectionID.split('_')[0]
 }
-
-const createConnectedNodesPositions = (connection: Connection) => atom(get => {
-  
-  // get node ids 
-  const connectedNodesIDs = connection.map(getNodeIDFromConnectionID)
-  
-  const nodes = get(nodesAtom)
-  
-  const connectedNodes = nodes.filter(nodeAtom => {
-    const node = get(nodeAtom)
-    // filter nodes if they are found in the connectedNodesIDs array
-    return connectedNodesIDs.indexOf(`${node.id}`) > -1
-  })
-
-  const positions = connectedNodes.map(nodeAtom => {
-    const node = get(nodeAtom)
-    const position = get(node.position)
-    return position
-  })
-  return [connectedNodes, positions]
-})
-
 
 type PureStrandProps = {
   points: number[] | undefined,
@@ -79,22 +54,13 @@ export function PureStrand({ points, onContextMenuCapture, notInteractive }: Pur
 }
 
 export default function Strand({ connection }: StrandProps) {
-  // this will rerender our component when involved nodes positions change
-  useAtom(useMemo(() => createConnectedNodesPositions(connection), [connection]))
-  const [, setConnections] = useAtom(connectionsAtom)
-
-  /**
-   * This hacks around the refs not being available at first
-   */
-  const [, set] = useState(false)
-  useLayoutEffect(() => {
-    set(true)
-  }, [connection])
-
   const [input, output] = connection 
-    
-  const inputRef = connectorsRef!.current![input];
-  const outputRef = connectorsRef!.current![output];
+  const [inputRef, outputRef] = useConnectorsStore(state => [state.connectors.get((input)), state.connectors.get(output)])
+
+  useStore(store => {
+    const connectedNodesIDs = connection.map(getNodeIDFromConnectionID)
+    return connectedNodesIDs.map(id => store.positions.get(id))
+  })
 
   let points = undefined
 
@@ -105,15 +71,7 @@ export default function Strand({ connection }: StrandProps) {
 
   const removeConnection = useCallback((e) => {
     e.preventDefault()
-    
-    setConnections(produce(connections => {
-      connections = connections.filter(thisConnection => { 
-        return connection[0] !== thisConnection[0] || connection[1] !== thisConnection[1]
-      })
-
-      return connections
-    }))
-  }, [connection, setConnections])
+  }, [])
 
   return (
     <PureStrand points={points} onContextMenuCapture={removeConnection} />

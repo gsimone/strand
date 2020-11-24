@@ -1,6 +1,7 @@
-import p, { enableMapSet } from "immer";
+import p, { enableMapSet, Immer } from "immer";
 import create, { UseStore } from "zustand";
 import {createRef, Ref} from 'react';
+import { makeConnectorId } from './utils';
 
 enableMapSet();
 
@@ -53,7 +54,8 @@ const createNode = (id) =>
             return node;
           })
         ),
-      removeField: (id) =>
+      removeField: (id) =>{
+
         set(
           p((node) => {
             console.log(id);
@@ -61,24 +63,13 @@ const createNode = (id) =>
             return node;
           })
         )
+      }
     };
   });
 
 /**
  * Creating connections
 */
-
-/**
- * Holds refs for all connectors, used to draw the lines
- */
-type ConnectorsRefMap = {
-  [key: string]: Ref<HTMLDivElement>
-}
-
-export const connectorsRef = createRef<ConnectorsRefMap>()
-// @ts-expect-error
-connectorsRef.current = {}
-
 export enum ConnectorDirection {
   input = "INPUT",
   output = "OUTPUT"
@@ -141,16 +132,16 @@ type ConnectorsState = {
 export const useConnectorsStore = create<ConnectorsState>((set, get) => {
   return { 
     connectors: new Map(),
-    registerConnector: (id, ref) => set(p(store => {
-      store.connectors.set(id, ref)
-      return store
-    })),
-    unregisterConnector: (id) => set(p(store => {
-      store.connectors.delete(id)
-      return store
-    }))
+    registerConnector: (id, ref) => {
+      get().connectors.set(id, ref)
+    },
+    unregisterConnector: (id) => {
+      get().connectors.delete(id)
+    }
   }
 })
+
+useConnectorsStore.subscribe(console.log)
 
 export const useStore = create<State>((set, get) => {
   const f = uuid();
@@ -162,7 +153,7 @@ export const useStore = create<State>((set, get) => {
     connections: [],
 
     addConnection: (origin, destination) => set(p(store => {
-      store.connections.push([origin,destination])
+      store.connections.push([makeConnectorId(origin), makeConnectorId(destination)])
       useConnectionStore.getState().reset()
       return store
     })),

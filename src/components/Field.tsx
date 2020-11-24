@@ -16,7 +16,13 @@ function Field({ useField, useNode }: FieldProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    inputRef!.current!.focus()
+    return () => console.log('unmounting Field')
+  }, [])
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef!.current!.focus()
+    }
   }, [])
 
   const handleNameChange = useCallback((e)=>{

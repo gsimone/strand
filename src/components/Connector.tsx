@@ -14,15 +14,18 @@ type ConnectorProps = {
 export default function Connector({ node, field, direction }: ConnectorProps) {
   const connectorRef = useRef<HTMLDivElement>(null)
   const [registerConnector, unregisterConnector] = useConnectorsStore(state => [state.registerConnector, state.unregisterConnector])
-  const connectorId = makeConnectorId({ node, field, direction })
-
-  useEffect(() => {
-    registerConnector(connectorId, connectorRef)
-    return () => unregisterConnector(connectorId)
-  }, [connectorId, registerConnector, unregisterConnector])
-  
   const addConnection = useStore(store => store.addConnection)
   const { origin, connecting, startConnecting } = useConnectionStore()
+  
+  useEffect(() => {
+    const connectorId = makeConnectorId({ node, field, direction })
+    if (connectorRef.current) {
+      registerConnector(connectorId, connectorRef)
+    }
+
+    return () => unregisterConnector(connectorId)
+  }, [direction, field, node, registerConnector, unregisterConnector])
+  
 
   // disable a connection when one the same direction is set
   const disabled = origin?.node === node || origin?.direction === direction;

@@ -5,7 +5,7 @@ import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { deserializeStateAtom, createNodeAtom, nodesAtom } from './atoms'
   
 import Node from './components/Node'
-// import Canvas from './components/Canvas'
+import Canvas from './components/Canvas'
 import NodeDetails from './components/NodeDetails/NodeDetails'
 
 import data from './data.json'
@@ -42,7 +42,7 @@ function App() {
       "
     >
       <div>
-        {/* <Canvas /> */}
+        <Canvas />
         <Nodes />
       </div>
     </div>

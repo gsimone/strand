@@ -4,15 +4,16 @@ import pick from 'lodash.pick'
 
 import { FieldStore,createField } from './field'
 import { useStore } from './store';
+import { ID } from "store";
 
 const uuid = () => Math.floor(Math.random() * 1000);
 
 export type Node = {
-  id: number,
+  id: ID,
   name: string
-  fields: number[],
+  fields: ID[],
   addField: () => void
-  removeField: (id: number) => void
+  removeField: (id: ID) => void
 }
 
 export type NodeStore = UseStore<Node>

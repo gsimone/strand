@@ -4,10 +4,11 @@ import produce from 'immer';
 
 import { makeConnectorId } from '../utils'
 import { useConnectionStore, ConnectorDirection, useStore, useConnectorsStore } from '../store';
+import { ID } from '../store';
 
 type ConnectorProps = {
-  node: number,
-  field: number,
+  node: ID,
+  field: ID,
   direction: ConnectorDirection
 }
 

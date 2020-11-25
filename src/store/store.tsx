@@ -7,24 +7,25 @@ import { Connector } from './connector'
 
 import { makeConnectorId } from '../utils';
 import { FieldStore } from './field';
+import { ID } from './index';
 
 const uuid = () => Math.floor(Math.random() * 1000);
 
 export type Position = number[]
 
 export type State = {
-  nodes: Map<number, NodeStore>,
-  positions: Map<number, Position>
-  fields: Map<number, FieldStore>
+  nodes: Map<ID, NodeStore>,
+  positions: Map<ID, Position>
+  fields: Map<ID, FieldStore>
 
   connections: Connection[]
   addConnection: (origin: Connector, destination: Connector) => void,
 
-  setPosition: (id: number, position: Position) => void,
+  setPosition: (id: ID, position: Position) => void,
   addNode: () => void,
-  removeNode: (id: number) => void,
-  active?: number,
-  setActive: (id: number) => void,
+  removeNode: (id: ID) => void,
+  active?: ID,
+  setActive: (id: ID) => void,
 }
 
 export const useStore = create<State>((set, get) => {

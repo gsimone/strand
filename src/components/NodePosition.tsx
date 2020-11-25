@@ -1,10 +1,10 @@
 import React, { useCallback,useRef, useEffect, useLayoutEffect, Ref } from "react";
 
-import { useStore, Position } from '../store';
+import { useStore, Position, ID } from '../store';
 
 type NodePositionProps = {
   nodeRef: Ref<HTMLDivElement>,
-  id: number,
+  id: ID,
   children: JSX.Element
 }
 

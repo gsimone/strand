@@ -4,6 +4,7 @@ import pick from 'lodash.pick'
 
 import { FieldStore,createField } from './field'
 import { useStore } from './store';
+import { Connection } from './connection'
 import { ID } from "store";
 
 const uuid = () => Math.floor(Math.random() * 1000);
@@ -48,6 +49,17 @@ export const createNode = (id) =>
       
       },
       removeField: (id) => {
+
+        // remove related connections
+        const {connections, removeConnection} = useStore.getState()
+
+        connections.forEach((connection: Connection)  => {
+           // join the two ends of the connection since we only care if the field id is any of them
+          const connectionString = connection.join('')
+          if (connectionString.indexOf(`${id}`) > -1) {
+            removeConnection(connection)
+          }
+        })
 
         useStore.setState(p(state => {
           state.fields.delete(id)

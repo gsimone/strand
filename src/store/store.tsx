@@ -53,7 +53,6 @@ export const useStore = create<State>((set, get) => {
       useConnectionStore.getState().reset()
       return store
     })),
-
     removeConnection: (connection: Connection) => {
 
       set(p(store => {
@@ -73,6 +72,7 @@ export const useStore = create<State>((set, get) => {
         return store
       }))
     },
+
     addNode: () => {
       set(
         p((store) => {
@@ -80,7 +80,6 @@ export const useStore = create<State>((set, get) => {
           store.positions.set(n, [100, 100])
           store.nodes.set(n, createNode(n));
           store.active = n;
-
 
           return store;
         })
@@ -91,11 +90,11 @@ export const useStore = create<State>((set, get) => {
         p((store) => {
           store.nodes.delete(id);
           store.active = null;
-
           return store;
         })
       );
     },
+
     active: undefined,
     setActive: (id) => set({ active: id }),
     serialize: () => {

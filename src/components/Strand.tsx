@@ -23,7 +23,7 @@ export function PureStrand({ points, onContextMenuCapture, notInteractive }: Pur
   const pathRef = useRef<SVGGElement>(null)
 
   const draw = useCallback(() => requestAnimationFrame(() => {
-    if (points) {
+    if (points && pathRef.current) {
       const [x,y,x2,y2] = points
     
       const line = `

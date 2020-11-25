@@ -8,12 +8,17 @@ import { ID } from "store";
 
 const uuid = () => Math.floor(Math.random() * 1000);
 
-export type Node = {
+export type NodeValues = {
   id: ID,
   name: string
-  fields: ID[],
+  fields: ID[]
+}
+
+export type Node = NodeValues & {
   addField: () => void
-  removeField: (id: ID) => void
+  removeField: (id: ID) => void,
+  preSerialize: () => NodeValues,
+  serialize: () => string,
 }
 
 export type NodeStore = UseStore<Node>
@@ -57,6 +62,14 @@ export const createNode = (id) =>
             return node;
           })
         )
-    }
+      },
+      preSerialize: () => {
+        const { id, name, fields } = get()
+        return { id, name, fields }
+      },
+      serialize: () => {
+        const { preSerialize } = get()
+        return JSON.stringify(preSerialize())
+      }
     };
   });

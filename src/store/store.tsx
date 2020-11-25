@@ -1,31 +1,39 @@
 import create from 'zustand'
 import p from "immer";
 
-import { createNode, NodeStore } from './node'
+import { createNode, NodeStore, NodeValues } from './node'
 import { useConnectionStore, Connection } from './connection'
 import { Connector } from './connector'
 
 import { makeConnectorId } from '../utils';
-import { FieldStore } from './field';
+import { FieldStore, FieldValues } from './field';
 import { ID } from './index';
 
 const uuid = () => Math.floor(Math.random() * 1000);
 
+export type StateFromJson = {
+  nodes: NodeValues[]
+  positions: Record<ID, number[]>
+  fields: FieldValues[],
+  connections: Array<string>
+}
+
 export type Position = number[]
 
 export type State = {
-  nodes: Map<ID, NodeStore>,
+  nodes: Map<ID, NodeStore>
   positions: Map<ID, Position>
   fields: Map<ID, FieldStore>
-
   connections: Connection[]
-  addConnection: (origin: Connector, destination: Connector) => void,
 
+  addConnection: (origin: Connector, destination: Connector) => void,
   setPosition: (id: ID, position: Position) => void,
   addNode: () => void,
   removeNode: (id: ID) => void,
   active?: ID,
   setActive: (id: ID) => void,
+  serialize: () => void,
+  setState: (initValues: StateFromJson) => void,
 }
 
 export const useStore = create<State>((set, get) => {
@@ -74,6 +82,20 @@ export const useStore = create<State>((set, get) => {
       );
     },
     active: undefined,
-    setActive: (id) => set({ active: id })
+    setActive: (id) => set({ active: id }),
+    serialize: () => {
+      const { nodes, positions, fields, connections } = get()
+      console.log(
+        JSON.stringify({
+          nodes: Array.from(nodes).map(([_, x]) => x.getState().preSerialize()),
+          positions: Array.from(positions),
+          fields: Array.from(fields).map(([_, x]) => x.getState().preSerialize()),
+          connections
+        }, null, "  ")
+      )
+    },
+    setState: initValues => {
+      const { nodes, positions, fields, connections } = initValues
+    }
   };
 });

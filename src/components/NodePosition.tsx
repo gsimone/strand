@@ -1,5 +1,4 @@
-import React, { useCallback,useRef, useEffect, Ref } from "react";
-import { PrimitiveAtom, useAtom } from 'jotai'
+import React, { useCallback,useRef, useEffect, useLayoutEffect, Ref } from "react";
 
 import { Position } from '../atoms'
 import { useStore } from '../store';
@@ -17,7 +16,15 @@ function NodePosition({
 }: NodePositionProps) {
   const offset = useRef<number[]>([]);
   const setPosition = useStore(store => store.setPosition)
-
+  
+  // Set node position on initial mount
+  useEffect(() => {
+    const [x,y] = useStore.getState().positions.get(id) as Position
+    // @ts-ignore
+    nodeRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+  }, [id, nodeRef])
+  
+  // react to position changes by setting transform when position changes
   useEffect(() =>  useStore.subscribe((position: Position | undefined) => {
       if (position ) {
         const [x,y] = position

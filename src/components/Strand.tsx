@@ -23,7 +23,7 @@ export function PureStrand({ points, onContextMenuCapture, notInteractive }: Pur
   const pathRef = useRef<SVGGElement>(null)
 
   const draw = useCallback(() => requestAnimationFrame(() => {
-    if (points) {
+    if (points && pathRef.current) {
       const [x,y,x2,y2] = points
     
       const line = `
@@ -56,6 +56,7 @@ export function PureStrand({ points, onContextMenuCapture, notInteractive }: Pur
 export default function Strand({ connection }: StrandProps) {
   const [input, output] = connection 
   const [inputRef, outputRef] = useConnectorsStore(state => [state.connectors.get((input)), state.connectors.get(output)])
+  const removeConnection = useStore(store => store.removeConnection)
 
   useStore(store => {
     const connectedNodesIDs = connection.map(getNodeIDFromConnectionID)
@@ -69,12 +70,13 @@ export default function Strand({ connection }: StrandProps) {
     points = calcLine( inputRef.current.getBoundingClientRect(), outputRef.current.getBoundingClientRect() )
   }
 
-  const removeConnection = useCallback((e) => {
+  const handleRightClick = useCallback((e) => {
     e.preventDefault()
-  }, [])
+    removeConnection(connection)
+  }, [connection, removeConnection])
 
   return (
-    <PureStrand points={points} onContextMenuCapture={removeConnection} />
+    <PureStrand points={points} onContextMenuCapture={handleRightClick} />
   )
 
 }

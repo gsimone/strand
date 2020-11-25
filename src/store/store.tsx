@@ -27,6 +27,8 @@ export type State = {
   connections: Connection[]
 
   addConnection: (origin: Connector, destination: Connector) => void,
+  removeConnection: (connection: Connection) => void,
+  
   setPosition: (id: ID, position: Position) => void,
   addNode: (id?: ID, name?: string, fields?: FieldValues[], position?: Array<number>) => void,
   removeNode: (id: ID) => void,
@@ -51,6 +53,18 @@ export const useStore = create<State>((set, get) => {
       useConnectionStore.getState().reset()
       return store
     })),
+    removeConnection: (connection: Connection) => {
+
+      set(p(store => {
+
+        const index = store.connections.findIndex(searchConnection => searchConnection.join('') === connection.join(''))
+        store.connections.splice(index)
+
+        return store
+
+      }))
+
+    },
     
     setPosition: (id, position) => {
       set(p(store => {
@@ -80,11 +94,11 @@ export const useStore = create<State>((set, get) => {
         p((store) => {
           store.nodes.delete(id);
           store.active = null;
-
           return store;
         })
       );
     },
+
     active: undefined,
     setActive: (id) => set({ active: id }),
     serialize: () => {

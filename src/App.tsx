@@ -10,18 +10,15 @@ import NodeDetails from './components/NodeDetails/NodeDetails'
 
 import data from './data.json'
 import { useStore } from './store';
+import Toolbar from './components/Toolbar';
 
 function Nodes() {
   const nodes = useStore(store => store.nodes)
-  const addNode = useStore(store => store.addNode)
 
   return (
     <div>
       {Array.from(nodes).map(([id], i) => <Node key={id} id={id} />)}
-      <div>
-        {/* eslint-disable-next-line */}
-        <button className="relative z-20 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={addNode}> 🆕 Add node</button>
-      </div>
+  
     </div>
   )
 }
@@ -45,6 +42,8 @@ function App() {
         <Canvas />
         <Nodes />
       </div>
+      
+      <Toolbar />
     </div>
   );
 }

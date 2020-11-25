@@ -6,6 +6,7 @@ import { useConnectionStore, Connection } from './connection'
 import { Connector } from './connector'
 
 import { makeConnectorId } from '../utils';
+import { FieldStore } from './field';
 
 const uuid = () => Math.floor(Math.random() * 1000);
 
@@ -14,6 +15,7 @@ export type Position = number[]
 export type State = {
   nodes: Map<number, NodeStore>,
   positions: Map<number, Position>
+  fields: Map<number, FieldStore>
 
   connections: Connection[]
   addConnection: (origin: Connector, destination: Connector) => void,
@@ -29,9 +31,10 @@ export const useStore = create<State>((set, get) => {
   const f = uuid();
   
   return {
-    nodes: new Map([[f, createNode(f)]]),
-    positions: new Map([[f, [100, 100]]]),
 
+    nodes: new Map(),
+    positions: new Map(),
+    fields: new Map(),
     connections: [],
 
     addConnection: (origin, destination) => set(p(store => {

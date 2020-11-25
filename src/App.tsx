@@ -1,14 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Provider as Jotai, useAtom } from 'jotai'
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import React from "react";
 
-import { deserializeStateAtom, createNodeAtom, nodesAtom } from './atoms'
-  
 import Node from './components/Node'
 import Canvas from './components/Canvas'
-import NodeDetails from './components/NodeDetails/NodeDetails'
 
-import data from './data.json'
 import { useStore } from './store';
 import Toolbar from './components/Toolbar';
 
@@ -18,7 +12,6 @@ function Nodes() {
   return (
     <div>
       {Array.from(nodes).map(([id], i) => <Node key={id} id={id} />)}
-  
     </div>
   )
 }

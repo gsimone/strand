@@ -1,7 +1,6 @@
 import React, { useCallback,useRef, useEffect, useLayoutEffect, Ref } from "react";
 
-import { Position } from '../atoms'
-import { useStore } from '../store';
+import { useStore, Position } from '../store';
 
 type NodePositionProps = {
   nodeRef: Ref<HTMLDivElement>,

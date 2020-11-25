@@ -3,13 +3,14 @@ import p from "immer";
 import pick from 'lodash.pick'
 
 import { FieldStore,createField } from './field'
+import { useStore } from './store';
 
 const uuid = () => Math.floor(Math.random() * 1000);
 
 export type Node = {
   id: number,
   name: string
-  fields: Map<number, FieldStore>
+  fields: number[],
   addField: () => void
   removeField: (id: number) => void
 }
@@ -18,24 +19,43 @@ export type NodeStore = UseStore<Node>
 
 export const createNode = (id) =>
   create<Node>((set, get) => {
-    const fieldId = uuid();
     return {
       id,
       name: id,
-      fields: new Map([[fieldId, createField(fieldId)]]),
-      addField: () =>
+      fields: [],
+      addField: () =>{
+
+        const fieldID = uuid();
+        const field = createField(fieldID)
+
+        useStore.setState(p(state => {
+          state.fields.set(fieldID, field)
+          return state
+        }))
+        
         set(
           p((node) => {
-            const n = uuid();
-            node.fields.set(n, createField(n));
+            node.fields.push(fieldID);
             return node;
           })
-        ),
-      removeField: (id) => set(
-        p((node) => {
-          node.fields.delete(id);
-          return node;
-        })
-      )
+        )
+      
+      },
+      removeField: (id) => {
+
+        useStore.setState(p(state => {
+          state.fields.delete(id)
+          return state
+        }))
+        
+        set(
+          p((node) => {
+            const index = node.fields.indexOf(id)
+            
+            node.fields.splice(index, 1);
+            return node;
+          })
+        )
+    }
     };
   });

@@ -47,7 +47,7 @@ function Node({ useNode }: NodeProps) {
         </NodePosition>
 
         <div className="mt-2 p-2 ">
-          {Array.from(fields).map(([id], i) => <Field id={id} key={id} useNode={useNode} />)}
+          {fields.map((id, i) => <Field id={id} key={id} useNode={useNode} />)}
           <button onClick={handleAddField} className="mt-4 text-gray-600 hover:text-green-500 w-4 h-4 m-auto block">
             <CircleAdd />
           </button>

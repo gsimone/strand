@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import Connector from './Connector'
 
 import { ConnectorDirection, FieldStore, NodeStore } from '../store';
+import { useStore } from '../store';
 
 type FieldProps = {
   useField: FieldStore,
@@ -55,7 +56,7 @@ function Field({ useField, useNode }: FieldProps) {
 }
 
 export default function ConnectedField({ id, useNode }) {
-  const useField = useNode(state => state.fields.get(id))
+  const useField = useStore(state => state.fields.get(id))
  
   if (typeof useField !== "undefined") return <Field useField={useField} useNode={useNode} />
    

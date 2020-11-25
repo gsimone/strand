@@ -1,13 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import Node from './components/Node'
 import Canvas from './components/Canvas'
+import Toolbar from './components/Toolbar';
 
 import { useStore } from './store';
-import Toolbar from './components/Toolbar';
+
+import { initialState } from "./initial-state"
 
 function Nodes() {
   const nodes = useStore(store => store.nodes)
+  
+  useEffect(() => {
+    const { setInitialState } = useStore.getState()
+    setInitialState(JSON.parse(initialState))
+  },[])
 
   return (
     <div>

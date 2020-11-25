@@ -11,14 +11,14 @@ import { ID } from './index';
 
 const uuid = () => Math.floor(Math.random() * 1000);
 
+export type Position = number[]
+
 export type StateFromJson = {
   nodes: NodeValues[]
-  positions: Record<ID, number[]>
+  positions: any // TODO Record<[ID, Position]>
   fields: FieldValues[],
   connections: Array<string>
 }
-
-export type Position = number[]
 
 export type State = {
   nodes: Map<ID, NodeStore>
@@ -28,12 +28,12 @@ export type State = {
 
   addConnection: (origin: Connector, destination: Connector) => void,
   setPosition: (id: ID, position: Position) => void,
-  addNode: () => void,
+  addNode: (id?: ID, name?: string, fields?: FieldValues[], position?: Array<number>) => void,
   removeNode: (id: ID) => void,
   active?: ID,
   setActive: (id: ID) => void,
   serialize: () => void,
-  setState: (initValues: StateFromJson) => void,
+  setInitialState: (initValues: StateFromJson) => void,
 }
 
 export const useStore = create<State>((set, get) => {
@@ -58,15 +58,19 @@ export const useStore = create<State>((set, get) => {
         return store
       }))
     },
-    addNode: () => {
+    addNode: (id, name, fields, position) => {
+      const n = id || uuid();
+      const node = createNode(n, name)
+      
+      if (fields && fields.length > 0) {
+        fields.forEach(field => node.getState().addField(field.id, field.name, field.value))
+      }
+
       set(
         p((store) => {
-          const n = uuid();
-          store.positions.set(n, [100, 100])
-          store.nodes.set(n, createNode(n));
+          store.positions.set(n, position || [100, 100])
+          store.nodes.set(n, node);
           store.active = n;
-
-
           return store;
         })
       );
@@ -94,8 +98,36 @@ export const useStore = create<State>((set, get) => {
         }, null, "  ")
       )
     },
-    setState: initValues => {
+    setInitialState: initValues => {
       const { nodes, positions, fields, connections } = initValues
+      const { addNode } = get()
+
+      // set initial nodes, fields and positions
+      nodes.forEach(node => {
+
+        const position = positions.reduce((acc, [_id, _position]) => {
+          if (node.id === _id) {
+            return _position
+          }
+          return acc
+        }, [100, 100])
+
+        const _fields = fields.filter(field => node.fields.includes(field.id))
+
+        addNode(node.id, node.name, _fields, position)
+      })
+
+      // set initial connections
+      set(p(store => {
+        connections.forEach(connection => {
+          if (connection?.length === 2 && typeof connection[0] === "string" && typeof connection[1] === "string") {
+            store.connections.push(connection)
+          }
+        })
+        useConnectionStore.getState().reset()
+
+        return store
+      }))
     }
   };
 });

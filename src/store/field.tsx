@@ -14,11 +14,11 @@ export type Field = FieldValues & {
 
 export type FieldStore = UseStore<Field>
 
-export const createField = (id) =>
+export const createField = (id, name, value) =>
   create<Field>((set, get) => ({
     id,
-    name: id,
-    value: "Field",
+    name: name || id,
+    value: value || "Field",
     setValue: (value) => {
       set(value)
     },

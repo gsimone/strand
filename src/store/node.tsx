@@ -15,7 +15,7 @@ export type NodeValues = {
 }
 
 export type Node = NodeValues & {
-  addField: () => void
+  addField: (id?: ID, name?: string, value?: any) => void
   removeField: (id: ID) => void,
   preSerialize: () => NodeValues,
   serialize: () => string,
@@ -23,16 +23,15 @@ export type Node = NodeValues & {
 
 export type NodeStore = UseStore<Node>
 
-export const createNode = (id) =>
+export const createNode = (id, name) =>
   create<Node>((set, get) => {
     return {
       id,
-      name: id,
+      name: name || id,
       fields: [],
-      addField: () =>{
-
-        const fieldID = uuid();
-        const field = createField(fieldID)
+      addField: (id, name, value) => {
+        const fieldID = id || uuid();
+        const field = createField(fieldID, name, value)
 
         useStore.setState(p(state => {
           state.fields.set(fieldID, field)

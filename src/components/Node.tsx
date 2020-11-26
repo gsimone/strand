@@ -25,9 +25,7 @@ function Node({ useNode }: NodeProps) {
     addField();
   }, [addField]);
 
-  // TODO this does a weak equal but will be fixed when we switch to string ids
-  // eslint-disable-next-line
-  const active = match && (params!.id == id)
+  const active = match && (params!.id === id)
 
   return (
     <div

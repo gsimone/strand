@@ -14,8 +14,9 @@ import { uuid } from "../utils"
 export type Position = number[];
 
 export type StateFromJson = {
-  nodes: any;
-  fields: any;
+  nodes: Record<ID, Record<string, any>>;
+  fields: Record<ID, Record<string, any>>;
+  positions: Record<ID, number[]>;
   connections: Array<string>;
 };
 
@@ -25,6 +26,8 @@ export type State = {
   fields: Map<ID, FieldStore>;
   connections: Connection[];
 
+  reset: () => void;
+  
   addConnection: (origin: Connector, destination: Connector) => void;
   removeConnection: (connection: Connection) => void;
 
@@ -48,6 +51,15 @@ export const useStore = create<State>((set, get) => {
     positions: new Map(),
     fields: new Map(),
     connections: [],
+
+    reset: () => {
+      set({
+        nodes: new Map(),
+        positions: new Map(),
+        fields: new Map(),
+        connections: [],
+      })
+    },
 
     addConnection: (origin, destination) =>
       set(
@@ -142,8 +154,6 @@ export const useStore = create<State>((set, get) => {
         return acc;
       }, {})
 
-      console.log(JSON.stringify({ nodes: _nodes, fields: _fields, connections }, null, "  "))
-      
       return JSON.stringify({ nodes: _nodes, fields: _fields, connections })
     },
     setInitialState: (initValues) => {

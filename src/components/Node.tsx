@@ -1,13 +1,15 @@
 import React, { useCallback, useRef } from "react";
 
-import NodePosition from "./NodePosition";
-import Field from "./Field";
+import { Link, useRoute } from 'wouter';
+
+import NodePosition from './NodePosition'
+import Field from './Field'
 
 import clsx from "clsx";
 import Edit from "icons/edit";
-import { Link } from "react-router-dom";
 import CircleAdd from "icons/circle-add";
-import { useStore, NodeStore } from "../store";
+
+import { useStore, NodeStore } from '../store';
 
 type NodeProps = {
   useNode: NodeStore;
@@ -15,6 +17,7 @@ type NodeProps = {
 
 function Node({ useNode }: NodeProps) {
   const { id, name, fields, addField } = useNode();
+  const [match, params] = useRoute("/nodes/:id")
 
   const nodeRef = useRef<HTMLDivElement>(null);
 
@@ -22,29 +25,33 @@ function Node({ useNode }: NodeProps) {
     addField();
   }, [addField]);
 
-  const active = true;
+  // TODO this does a weak equal but will be fixed when we switch to string ids
+  // eslint-disable-next-line
+  const active = match && (params!.id == id)
 
   return (
     <div
-      className={clsx(
-        "rounded-lg overflow-hidden w-64 bg-gray-800 bg-opacity-75 fixed top-0 z-10",
-        !active && `border-2 border-gray-700 `,
-        active && `border-3 border-green-500`
-      )}
+      className={
+        clsx("rounded-lg w-64 bg-gray-800 bg-opacity-75 fixed top-0 z-10 overflow-hidden", 
+        "border-2",
+        !active && `border-gray-900`,
+        active && `border-green-500`
+        )
+      }
       style={{ transform: `translate3d(0, 0, .1)` }}
       ref={nodeRef}
     >
-      <NodePosition id={id} nodeRef={nodeRef}>
-        <div className="flex justify-between text-xs font-bold py-2 pb-1 px-4 bg-gray-100 text-gray-800">
-          <span>{name}</span>
+        <NodePosition id={id} nodeRef={nodeRef}>
+          <div className="flex justify-between text-xs font-bold py-2 pb-1 px-4 bg-gray-100 text-gray-800" >
+            <span>{name}</span>
 
-          <span className="w-4 h-4">
-            {/* <Link to={`nodes/${id}`}> */}
-            <Edit />
-            {/* </Link> */}
-          </span>
-        </div>
-      </NodePosition>
+            <span className="w-4 h-4">
+              <Link href={`/nodes/${id}`}>
+                <a href={`/nodes/${id}`}><Edit /></a>
+              </Link>
+            </span>
+          </div>
+        </NodePosition>
 
       <div className="mt-2 p-2 ">
         {fields.map((id, i) => (

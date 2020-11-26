@@ -1,7 +1,7 @@
 import create from "zustand";
 import p from "immer";
 
-import { createNode, NodeStore, NodeValues } from "./node";
+import { createNode, NodeStore } from "./node";
 import { useConnectionStore, Connection } from "./connection";
 import { Connector } from "./connector";
 
@@ -43,8 +43,6 @@ export type State = {
 };
 
 export const useStore = create<State>((set, get) => {
-  const f = uuid();
-
   return {
     nodes: new Map(),
     positions: new Map(),
@@ -150,7 +148,6 @@ export const useStore = create<State>((set, get) => {
     },
     setInitialState: (initValues) => {
       const { nodes, fields, connections } = initValues;
-      const { addNode } = get();
 
       const initializedNodes = Object.entries(nodes).map(([id, node]: any) => {
         const _fields = node.fields.reduce((acc, fieldId) => {

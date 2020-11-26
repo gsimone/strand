@@ -1,4 +1,3 @@
-import { useAtom } from "jotai";
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
 import { makeConnectorId, calcLine } from "utils";

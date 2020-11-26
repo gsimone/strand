@@ -1,4 +1,4 @@
-import React, { useCallback,useRef, useEffect, useLayoutEffect, Ref } from "react";
+import React, { useCallback,useRef, useEffect, Ref } from "react";
 
 import { useStore, Position, ID } from '../store';
 

@@ -47,7 +47,7 @@ function Node({ useNode }: NodeProps) {
 
             <span className="w-4 h-4">
               <Link href={`/nodes/${id}`}>
-                <a><Edit /></a>
+                <a href={`/nodes/${id}`}><Edit /></a>
               </Link>
             </span>
           </div>

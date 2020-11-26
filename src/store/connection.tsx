@@ -1,5 +1,5 @@
 
-import create, { UseStore } from "zustand";
+import create from "zustand";
 
 import { Connector } from './connector'
 

@@ -39,8 +39,6 @@ export type State = {
 }
 
 export const useStore = create<State>((set, get) => {
-  const f = uuid();
-  
   return {
 
     nodes: new Map(),

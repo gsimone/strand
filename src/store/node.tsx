@@ -1,8 +1,7 @@
 import create, { UseStore } from "zustand";
 import p from "immer";
-import pick from 'lodash.pick'
 
-import { FieldStore,createField } from './field'
+import { createField } from './field'
 import { useStore } from './store';
 import { Connection } from './connection'
 import { ID } from "store";

@@ -18,7 +18,7 @@ export type NodeValues = {
 export type Node = NodeValues & {
   addField: (id?: ID, name?: string, value?: any) => void
   removeField: (id: ID) => void,
-  preSerialize: () => NodeValues,
+  pick: () => NodeValues,
   serialize: () => string,
 }
 
@@ -74,13 +74,13 @@ export const createNode = (id, name) =>
           })
         )
       },
-      preSerialize: () => {
+      pick: () => {
         const { id, name, fields } = get()
         return { id, name, fields }
       },
       serialize: () => {
-        const { preSerialize } = get()
-        return JSON.stringify(preSerialize())
+        const { pick } = get()
+        return JSON.stringify(pick())
       }
     };
   });

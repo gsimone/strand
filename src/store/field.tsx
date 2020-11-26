@@ -8,7 +8,7 @@ export type FieldValues = {
 
 export type Field = FieldValues & {
   setValue: (value: Record<string, any>) => void,
-  preSerialize: () => FieldValues,
+  pick: () => FieldValues,
   serialize: () => string
 }
 
@@ -22,13 +22,13 @@ export const createField = (id, name, value) =>
     setValue: (value) => {
       set(value)
     },
-    preSerialize: () => {
+    pick: () => {
       const { id, name, value } = get()
       return { id, name, value }
     },
     serialize: () => {
-      const { preSerialize } = get()
-      return JSON.stringify(preSerialize())
+      const { pick } = get()
+      return JSON.stringify(pick())
     }
   }));
 

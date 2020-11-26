@@ -14,9 +14,8 @@ const uuid = () => Math.floor(Math.random() * 1000);
 export type Position = number[]
 
 export type StateFromJson = {
-  nodes: NodeValues[]
-  positions: any // TODO Record<[ID, Position]>
-  fields: FieldValues[],
+  nodes: any
+  fields: any,
   connections: Array<string>
 }
 
@@ -105,41 +104,46 @@ export const useStore = create<State>((set, get) => {
       const { nodes, positions, fields, connections } = get()
       console.log(
         JSON.stringify({
-          nodes: Array.from(nodes).map(([_, x]) => x.getState().preSerialize()),
-          positions: Array.from(positions),
-          fields: Array.from(fields).map(([_, x]) => x.getState().preSerialize()),
+          nodes: Array.from(nodes).reduce((acc, [_, x]) => {
+            const { id, ...theRest } = x.getState().pick()
+            acc[id] = theRest
+            acc[id].position = Array.from(positions).reduce((acc, position) => {
+              if (id === position[0]) {
+                acc = position[1]
+              }
+              return acc
+            }, [100, 100])
+            return acc
+          }, {}),
+          fields: Array.from(fields).reduce((acc, [_, x]) => {
+            const { id, ...theRest } = x.getState().pick()
+            acc[id] = theRest
+            return acc
+          }, {}),
           connections
         }, null, "  ")
       )
     },
     setInitialState: initValues => {
-      const { nodes, positions, fields, connections } = initValues
+      const { nodes, fields, connections } = initValues
       const { addNode } = get()
 
       // set initial nodes, fields and positions
-      nodes.forEach(node => {
-
-        const position = positions.reduce((acc, [_id, _position]) => {
-          if (node.id === _id) {
-            return _position
+      Object.entries(nodes).forEach(([id, node] : any) => {
+        const _fields = node.fields.reduce((acc, fieldId) => {
+          const _field = fields[fieldId]
+          if (_field) {
+            acc.push(_field)
           }
           return acc
-        }, [100, 100])
-
-        const _fields = fields.filter(field => node.fields.includes(field.id))
-
-        addNode(node.id, node.name, _fields, position)
+        }, [])
+        addNode(node.id, node.name, _fields, node.position)
       })
 
       // set initial connections
       set(p(store => {
-        connections.forEach(connection => {
-          if (connection?.length === 2 && typeof connection[0] === "string" && typeof connection[1] === "string") {
-            store.connections.push(connection)
-          }
-        })
+        store.connections = connections || []
         useConnectionStore.getState().reset()
-
         return store
       }))
     }

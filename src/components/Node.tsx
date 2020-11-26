@@ -1,11 +1,14 @@
 import React, { useCallback, useRef } from "react";
 
+import { Link, useRoute } from 'wouter';
+
 import NodePosition from './NodePosition'
 import Field from './Field'
 
 import clsx from "clsx";
 import Edit from "icons/edit";
 import CircleAdd from "icons/circle-add";
+
 import { useStore, NodeStore } from '../store';
 
 type NodeProps = {
@@ -14,6 +17,7 @@ type NodeProps = {
 
 function Node({ useNode }: NodeProps) {
   const { id, name, fields, addField } = useNode();
+  const [match, params] = useRoute("/nodes/:id")
 
   const nodeRef = useRef<HTMLDivElement>(null);
 
@@ -21,14 +25,18 @@ function Node({ useNode }: NodeProps) {
     addField()
   }, [addField])
 
-  const active = true
+  // TODO this does a weak equal but will be fixed when we switch to string ids
+  // eslint-disable-next-line
+  const active = match && (params!.id == id)
 
   return (
     <div
       className={
-        clsx("rounded-lg overflow-hidden w-64 bg-gray-800 bg-opacity-75 fixed top-0 z-10", 
-        !active && `border-2 border-gray-700 `,
-        active && `border-3 border-green-500`)
+        clsx("rounded-lg w-64 bg-gray-800 bg-opacity-75 fixed top-0 z-10 overflow-hidden", 
+        "border-2",
+        !active && `border-gray-900`,
+        active && `border-green-500`
+        )
       }
       style={{ transform: `translate3d(0, 0, .1)` }}
       ref={nodeRef}
@@ -38,9 +46,9 @@ function Node({ useNode }: NodeProps) {
             <span>{name}</span>
 
             <span className="w-4 h-4">
-              {/* <Link to={`nodes/${id}`}> */}
-                <Edit />
-              {/* </Link> */}
+              <Link href={`/nodes/${id}`}>
+                <a><Edit /></a>
+              </Link>
             </span>
           </div>
         </NodePosition>

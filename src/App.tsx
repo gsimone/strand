@@ -7,6 +7,7 @@ import Toolbar from './components/Toolbar';
 import { useStore } from './store';
 
 import { initialState } from "./initial-state"
+import { useRoute } from "wouter";
 
 function Nodes() {
   const nodes = useStore(store => store.nodes)
@@ -23,7 +24,19 @@ function Nodes() {
   )
 }
 
+function NodeDetails({ id }) {
+
+  return <div className="h-screen w-64 bg-gray-900 text-white fixed right-0 top-0 z-20 p-4">
+   {id} 
+  </div>
+
+}
+
 function App() {
+  const [match, params] = useRoute("/nodes/:id");
+
+  console.log(match, params)
+
   return (
     <div
       className="
@@ -42,6 +55,8 @@ function App() {
         <Canvas />
         <Nodes />
       </div>
+
+      {(match && params) && <NodeDetails id={params.id}></NodeDetails>}
       
       <Toolbar />
     </div>

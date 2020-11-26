@@ -58,8 +58,6 @@ export default function Strand({ connection }: StrandProps) {
   const [inputRef, outputRef] = useConnectorsStore(state => [state.connectors.get((input)), state.connectors.get(output)])
   const removeConnection = useStore(store => store.removeConnection)
 
-  console.log('strand ', inputRef, outputRef)
-
   const [,set] = useState(0)
   useEffect(() => { set(1) }, [])
   

@@ -5,7 +5,6 @@ import Field from './Field'
 
 import clsx from "clsx";
 import Edit from "icons/edit";
-import { Link } from "react-router-dom";
 import CircleAdd from "icons/circle-add";
 import { useStore, NodeStore } from '../store';
 

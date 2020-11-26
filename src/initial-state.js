@@ -1,74 +1,74 @@
 export const initialState = `
 {
   "nodes": {
-    "353": {
-      "name": 353,
+    "fat-sloth-35": {
+      "name": "fat-sloth-35",
       "fields": [
-        711
+        "wise-horse-48",
+        "sour-falcon-16"
       ],
       "position": [
-        100,
-        100
+        53,
+        299
       ]
     },
-    "481": {
-      "name": 481,
+    "dull-dragonfly-95": {
+      "name": "dull-dragonfly-95",
       "fields": [
-        785,
-        616
+        "tame-gecko-25",
+        "polite-lizard-84"
       ],
       "position": [
-        404,
-        447
+        607,
+        469
       ]
     },
-    "783": {
-      "name": 783,
+    "serious-zebra-36": {
+      "name": "serious-zebra-36",
       "fields": [
-        631,
-        659
+        "mighty-rabbit-70"
       ],
       "position": [
-        636,
-        103
+        414,
+        87
       ]
     }
   },
   "fields": {
-    "616": {
-      "name": 616,
+    "wise-horse-48": {
+      "name": "wise-horse-48",
       "value": "Field"
     },
-    "631": {
-      "name": 631,
+    "sour-falcon-16": {
+      "name": "sour-falcon-16",
       "value": "Field"
     },
-    "659": {
-      "name": 659,
+    "mighty-rabbit-70": {
+      "name": "mighty-rabbit-70",
       "value": "Field"
     },
-    "711": {
-      "name": 711,
+    "tame-gecko-25": {
+      "name": "tame-gecko-25",
       "value": "Field"
     },
-    "785": {
-      "name": 785,
+    "polite-lizard-84": {
+      "name": "polite-lizard-84",
       "value": "Field"
     }
   },
   "connections": [
     [
-      "353_711_OUTPUT",
-      "783_631_INPUT"
+      "serious-zebra-36_mighty-rabbit-70_OUTPUT",
+      "dull-dragonfly-95_tame-gecko-25_INPUT"
     ],
     [
-      "783_631_OUTPUT",
-      "481_785_INPUT"
+      "fat-sloth-35_wise-horse-48_OUTPUT",
+      "serious-zebra-36_mighty-rabbit-70_INPUT"
     ],
     [
-      "353_711_INPUT",
-      "481_616_OUTPUT"
+      "fat-sloth-35_sour-falcon-16_OUTPUT",
+      "dull-dragonfly-95_polite-lizard-84_INPUT"
     ]
   ]
 }
-    `
+    `;

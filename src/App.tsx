@@ -1,26 +1,28 @@
 import React, { useEffect } from "react";
 
-import Node from './components/Node'
-import Canvas from './components/Canvas'
-import Toolbar from './components/Toolbar';
+import Node from "./components/Node";
+import Canvas from "./components/Canvas";
+import Toolbar from "./components/Toolbar";
 
-import { useStore } from './store';
+import { useStore } from "./store";
 
-import { initialState } from "./initial-state"
+import { initialState } from "./initial-state";
 
 function Nodes() {
-  const nodes = useStore(store => store.nodes)
-  
+  const nodes = useStore((store) => store.nodes);
+
   useEffect(() => {
-    const { setInitialState } = useStore.getState()
-    setInitialState(JSON.parse(initialState))
-  },[])
+    const { setInitialState } = useStore.getState();
+    setInitialState(JSON.parse(initialState));
+  }, []);
 
   return (
     <div>
-      {Array.from(nodes).map(([id], i) => <Node key={id} id={id} />)}
+      {Array.from(nodes).map(([id], i) => (
+        <Node key={id} id={id} />
+      ))}
     </div>
-  )
+  );
 }
 
 function App() {
@@ -42,7 +44,7 @@ function App() {
         <Canvas />
         <Nodes />
       </div>
-      
+
       <Toolbar />
     </div>
   );

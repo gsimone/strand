@@ -3,10 +3,7 @@
     {
       "id": "tricky-chicken-23",
       "name": "My node",
-      "position": [
-        54,
-        133
-      ],
+      "position": [54, 133],
       "fields": [
         {
           "id": "brave-ladybug-90",
@@ -17,10 +14,7 @@
     {
       "id": "1599659486118",
       "name": "Another node",
-      "position": [
-        320,
-        264
-      ],
+      "position": [320, 264],
       "fields": [
         {
           "id": "quick-cobra-15",

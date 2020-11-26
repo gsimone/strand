@@ -3,19 +3,13 @@
     "tricky-chicken-23": {
       "id": "tricky-chicken-23",
       "name": "My node",
-      "position": [
-        54,
-        133
-      ],
+      "position": [54, 133],
       "fields": ["brave-ladybug-90"]
     },
     "1599659486118": {
       "id": "1599659486118",
       "name": "Another node",
-      "position": [
-        320,
-        264
-      ],
+      "position": [320, 264],
       "fields": ["quick-cobra-15"]
     }
   },

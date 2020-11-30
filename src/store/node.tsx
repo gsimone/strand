@@ -7,6 +7,7 @@ import { Connection } from './connection'
 import { ID } from "store";
 
 import { uuid } from "../utils"
+import { ConnectorDirection } from "./connector";
 
 export type NodeValues = {
   id: ID;
@@ -19,6 +20,7 @@ export type Node = NodeValues & {
   removeField: (id: ID) => void;
   pick: () => NodeValues;
   serialize: () => string;
+  removeConnections: () => void
 };
 
 export type NodeStore = UseStore<Node>;
@@ -72,6 +74,24 @@ export const createNode = (id, name) =>
 
             node.fields.splice(index, 1);
             return node;
+          })
+        );
+      },
+      removeConnections: () => {
+        const { connections } = useStore.getState();
+        const { id, fields } = get()
+        
+        const possibleConnections = fields.reduce((acc, field) => {
+          acc.push(`${id}_${field}_${ConnectorDirection.input}`)
+          acc.push(`${id}_${field}_${ConnectorDirection.output}`)
+          return acc
+        }, new Array())
+        const newConnections = connections.filter(([connectionIn, connectionOut]) => !(possibleConnections.includes(connectionIn)||possibleConnections.includes(connectionOut)))
+        
+        useStore.setState(
+          p((state) => {
+            state.connections = newConnections
+            return state;
           })
         );
       },

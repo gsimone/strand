@@ -114,6 +114,13 @@ export const useStore = create<State>((set, get) => {
       );
     },
     removeNode: (id) => {
+      const { nodes } = get()
+      const node = nodes.get(id)
+      if (node) {
+        const { removeConnections } = node.getState()
+        removeConnections()
+      }
+
       set(
         p((store) => {
           store.nodes.delete(id);

@@ -41,7 +41,7 @@ export type State = {
   removeNode: (id: ID) => void;
   active?: ID;
   setActive: (id: ID) => void;
-  serialize: () => string;
+  serialize: () => any;
   setInitialState: (initValues: StateFromJson) => void;
 };
 
@@ -117,6 +117,7 @@ export const useStore = create<State>((set, get) => {
       set(
         p((store) => {
           store.nodes.delete(id);
+          store.positions.delete(id);
           store.active = null;
           return store;
         })
@@ -130,34 +131,25 @@ export const useStore = create<State>((set, get) => {
 
       const _nodes = Array.from(nodes).reduce((acc, [_, x]) => {
         const { id, ...theRest } = x.getState().pick();
-
         acc[id] = theRest;
-        acc[id].position = Array.from(positions).reduce(
-          (acc, position) => {
-        
-            if (id === position[0]) {
-              acc = position[1];
-            }
-        
-            return acc;
-          },
-          [100, 100]
-        );
-
         return acc;
       }, {})
 
       const _fields = Array.from(fields).reduce((acc, [_, x]) => {
         const { id, ...theRest } = x.getState().pick();
         acc[id] = theRest;
-        
         return acc;
       }, {})
 
-      return JSON.stringify({ nodes: _nodes, fields: _fields, connections })
+      const _positions = Array.from(positions).reduce((acc, [id, position]) => {
+        acc[id] = position
+        return acc
+      }, {})
+
+      return { nodes: _nodes, fields: _fields, connections, positions: _positions }
     },
     setInitialState: (initValues) => {
-      const { nodes, fields, connections } = initValues;
+      const { nodes, fields, connections, positions } = initValues;
 
       const initializedNodes = Object.entries(nodes).map(([id, node]: any) => {
         const _fields = node.fields.reduce((acc, fieldId) => {
@@ -175,15 +167,15 @@ export const useStore = create<State>((set, get) => {
           _node.getState().addField(field.id, field.name, field.value)
         );
 
-        return { node: _node, position: node.position };
+        return { node: _node };
       });
 
       set(
         p((store) => {
-          initializedNodes.forEach(({ node, position }) => {
+          initializedNodes.forEach(({ node }) => {
             const { id } = node.getState();
 
-            store.positions.set(id, position || [100, 100]);
+            store.positions.set(id, positions[id] || [100, 100]);
             store.nodes.set(id, node);
           });
 

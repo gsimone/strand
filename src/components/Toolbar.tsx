@@ -10,7 +10,7 @@ function Toolbar() {
       <button onClick={() => addNode()} className="p-2 bg-blue-600">
         Add node
       </button>
-      <button onClick={serialize} className="p-2 bg-blue-600">
+      <button onClick={() => console.log(JSON.stringify(serialize(), null, "  "))} className="p-2 bg-blue-600">
         Serialize
       </button>
     </div>

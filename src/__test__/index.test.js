@@ -2,20 +2,23 @@ import { useStore } from "../store";
 
 import emptyState from './__fixtures__/empty.json'
 import simpleNode from './__fixtures__/simple-node-string.js'
-import { ConnectorDirection } from "../store/connector"
+import connection from './__fixtures__/connection.json'
 
-const { uuid } = require('../utils')
+import { ConnectorDirection } from "../store/connector"
 
 jest.mock('../utils', () => {
   let i = 0
-
   return {
-    uuid: () => `${i++}`
+    ...(jest.requireActual('../utils')),
+    uuid: () => `${i++}`,
+    reset: () => i = 0
   }
 })
+const utils = require('../utils');
 
 beforeEach(() => {
   useStore.getState().reset()
+  utils.reset()
 })
 
 test('Empty store serialize', () => {
@@ -52,17 +55,17 @@ test("Serialize", () => {
 
   expect(JSON.stringify(serialize())).toBe(JSON.stringify({
     nodes: {
-      1: {
-        name: "1",
+      0: {
+        name: "0",
         fields: [],
       },
-      2: { name: "2", fields: [] },
+      1: { name: "1", fields: [] },
     },
     fields: {},
     connections: [],
     positions: {
-      1: [100,100],
-      2: [100,100]
+      0: [100,100],
+      1: [100,100]
     }
   }));
     
@@ -115,7 +118,7 @@ test('Add and remove field', () => {
   addNode()
  
   const { nodes } = useStore.getState()
-  const { id, fields: oldFields, addField, removeField } = nodes.values().next().value.getState()
+  const { fields: oldFields, addField, removeField } = nodes.values().next().value.getState()
   expect(oldFields.length).toBe(0)
   expect(useStore.getState().fields.size).toBe(0)
 
@@ -131,7 +134,7 @@ test('Add and remove field', () => {
 })
 
 test('Add and remove connections', () => {
-  const { addNode, addConnection } = useStore.getState()
+  const { addNode, addConnection, removeConnection } = useStore.getState()
   addNode()
   addNode()
  
@@ -140,19 +143,53 @@ test('Add and remove connections', () => {
     const { addField } = node.getState()
     addField()
   })
+  
+  expect(useStore.getState().connections.length).toBe(0)
 
   const nodeIterator = nodes.values()
   const { id: firstNodeId, fields: firstNodeFields } = nodeIterator.next().value.getState()
   const {  id: secondNodeId, fields: secondNodeFields } = nodeIterator.next().value.getState()
-  const { fields } = useStore.getState()
 
-  addConnection({
+  const connectionA = {
     node: firstNodeId,
     field: firstNodeFields[0],
     direction: ConnectorDirection.input
-  }, {
+  }
+  const connectionB =  {
     node: secondNodeId,
     field: secondNodeFields[0],
     direction: ConnectorDirection.output
-  })
+  }
+  addConnection(connectionA, connectionB)
+  expect(useStore.getState().connections.length).toBe(1)
+  expect(useStore.getState().connections[0]).toEqual([utils.makeConnectorId(connectionA), utils.makeConnectorId(connectionB)])
+
+  removeConnection(useStore.getState().connections[0])
+  expect(useStore.getState().connections.length).toBe(0)
 })
+
+test('Remove connected field', () => {
+  const { setInitialState } = useStore.getState()
+  setInitialState(connection)
+  expect(useStore.getState().connections.length).toBe(1)
+  
+  const { nodes } = useStore.getState()
+  const { fields, removeField } = nodes.values().next().value.getState()
+  
+  removeField(fields[0])
+  expect(useStore.getState().connections.length).toBe(0)
+})
+
+test('Remove node with a connected field', () => {
+  const { setInitialState, removeNode } = useStore.getState()
+  setInitialState(connection)
+  expect(useStore.getState().connections.length).toBe(1)
+  
+  const { nodes } = useStore.getState()
+  const { id } = nodes.values().next().value.getState()
+  removeNode(id)
+
+  expect(useStore.getState().connections.length).toBe(0)
+})
+
+

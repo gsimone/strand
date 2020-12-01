@@ -12,8 +12,8 @@ import CircleAdd from "icons/circle-add";
 import { useStore, NodeStore } from '../store';
 
 type NodeProps = {
-  useNode: NodeStore
-}
+  useNode: NodeStore;
+};
 
 function Node({ useNode }: NodeProps) {
   const { id, name, fields, addField } = useNode();
@@ -22,12 +22,10 @@ function Node({ useNode }: NodeProps) {
   const nodeRef = useRef<HTMLDivElement>(null);
 
   const handleAddField = useCallback(() => {
-    addField()
-  }, [addField])
+    addField();
+  }, [addField]);
 
-  // TODO this does a weak equal but will be fixed when we switch to string ids
-  // eslint-disable-next-line
-  const active = match && (params!.id == id)
+  const active = match && (params!.id === id)
 
   return (
     <div
@@ -53,21 +51,25 @@ function Node({ useNode }: NodeProps) {
           </div>
         </NodePosition>
 
-        <div className="mt-2 p-2 ">
-          {fields.map((id, i) => <Field id={id} key={id} useNode={useNode} />)}
-          <button onClick={handleAddField} className="mt-4 text-gray-600 hover:text-green-500 w-4 h-4 m-auto block">
-            <CircleAdd />
-          </button>
-        </div>
+      <div className="mt-2 p-2 ">
+        {fields.map((id, i) => (
+          <Field id={id} key={id} useNode={useNode} />
+        ))}
+        <button
+          onClick={handleAddField}
+          className="mt-4 text-gray-600 hover:text-green-500 w-4 h-4 m-auto block"
+        >
+          <CircleAdd />
+        </button>
+      </div>
     </div>
   );
 }
 
-
 export default function ConnectedNode({ id }) {
-  const useNode = useStore(store => store.nodes.get(id))
+  const useNode = useStore((store) => store.nodes.get(id));
 
-  if (typeof useNode !== "undefined") return <Node useNode={useNode!} /> 
+  if (typeof useNode !== "undefined") return <Node useNode={useNode!} />;
 
-  return null
-} 
+  return null;
+}

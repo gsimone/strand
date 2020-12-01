@@ -44,10 +44,7 @@
     }
   },
   "connections": [
-    [
-      "serious-zebra-36_mighty-rabbit-70_OUTPUT",
-      "dull-dragonfly-95_tame-gecko-25_INPUT"
-    ],
+   
     [
       "fat-sloth-35_wise-horse-48_OUTPUT",
       "serious-zebra-36_mighty-rabbit-70_INPUT"
@@ -63,8 +60,8 @@
       144
     ],
     "dull-dragonfly-95": [
-      516,
-      544
+      619,
+      298
     ],
     "serious-zebra-36": [
       414,

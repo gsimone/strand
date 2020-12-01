@@ -1,31 +1,34 @@
 import React, { useEffect } from "react";
 
-import Node from './components/Node'
-import Canvas from './components/Canvas'
-import Toolbar from './components/Toolbar';
+import Node from "./components/Node";
+import Canvas from "./components/Canvas";
+import Toolbar from "./components/Toolbar";
 
-import { useStore } from './store';
+import { useStore } from "./store";
 
-import { initialState } from "./initial-state"
+import initialState from "./initial-state.json"
 import { useRoute, Link } from 'wouter';
 
 function Nodes() {
-  const nodes = useStore(store => store.nodes)
-  
+  const nodes = useStore((store) => store.nodes);
+
   useEffect(() => {
-    const { setInitialState } = useStore.getState()
-    setInitialState(JSON.parse(initialState))
-  },[])
+    const { setInitialState } = useStore.getState();
+    // @ts-expect-error
+    setInitialState(initialState);
+  }, []);
 
   return (
     <div>
-      {Array.from(nodes).map(([id], i) => <Node key={id} id={id} />)}
+      {Array.from(nodes).map(([id], i) => (
+        <Node key={id} id={id} />
+      ))}
     </div>
-  )
+  );
 }
 
 function NodeDetails({ id }) {
-  const useNode = useStore(store => store.nodes.get(Number(id)))!
+  const useNode = useStore(store => store.nodes.get(id))!
   const node = useNode()
   
   return <>{node.fields.map(field => <div key={field}>{field}</div>)}</>
@@ -33,7 +36,7 @@ function NodeDetails({ id }) {
 
 
 function ConnectedNodeDetails({ id }) {
-  const node = useStore(store => store.nodes.get(Number(id)))
+  const node = useStore(store => store.nodes.get(id))
 
   return  <div className="h-screen w-64 bg-gray-900 text-white fixed right-0 top-0 z-20 p-4">
    <h3>Edit {id} - <Link href="/"><a href="/">Close</a></Link></h3>

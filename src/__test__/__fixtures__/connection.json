@@ -1,0 +1,42 @@
+{
+  "nodes": {
+    "0": {
+      "name": "0",
+      "fields": [
+        "2"
+      ]
+    },
+    "1": {
+      "name": "1",
+      "fields": [
+        "3"
+      ]
+    }
+  },
+  "fields": {
+    "2": {
+      "name": "2",
+      "value": "Field"
+    },
+    "3": {
+      "name": "3",
+      "value": "Field"
+    }
+  },
+  "connections": [
+    [
+      "0_2_INPUT",
+      "1_3_OUTPUT"
+    ]
+  ],
+  "positions": {
+    "0": [
+      100,
+      100
+    ],
+    "1": [
+      100,
+      100
+    ]
+  }
+}

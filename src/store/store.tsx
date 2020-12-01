@@ -79,7 +79,8 @@ export const useStore = create<State>((set, get) => {
             (searchConnection) =>
               searchConnection.join("") === connection.join("")
           );
-          store.connections.splice(index);
+
+          store.connections.splice(index, 1);
 
           return store;
         })

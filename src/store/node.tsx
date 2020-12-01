@@ -85,7 +85,7 @@ export const createNode = (id, name) =>
           acc.push(`${id}_${field}_${ConnectorDirection.input}`)
           acc.push(`${id}_${field}_${ConnectorDirection.output}`)
           return acc
-        }, new Array())
+        }, [] as string[])
         const newConnections = connections.filter(([connectionIn, connectionOut]) => !(possibleConnections.includes(connectionIn)||possibleConnections.includes(connectionOut)))
         
         useStore.setState(

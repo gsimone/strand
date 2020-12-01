@@ -6,6 +6,8 @@ import connection from './__fixtures__/connection.json'
 
 import { ConnectorDirection } from "../store/connector"
 
+const str = (x, replace = null, space = '  ') => JSON.stringify(x, replace, space)
+
 jest.mock('../utils', () => {
   let i = 0
   return {
@@ -23,7 +25,7 @@ beforeEach(() => {
 
 test('Empty store serialize', () => {
   const { serialize } = useStore.getState()
-  expect(JSON.stringify(serialize())).toBe(emptyState);
+  expect(str(serialize())).toEqual(str(emptyState));
 })
 
 test('Add one node', () => {
@@ -48,12 +50,12 @@ test('Add one node', () => {
 
 test("Serialize", () => {
 
-  const { serialize,addNode} = useStore.getState()
+  const { serialize, addNode } = useStore.getState()
 
   addNode()
   addNode()
 
-  expect(JSON.stringify(serialize())).toBe(JSON.stringify({
+  expect(str(serialize())).toBe(str({
     nodes: {
       0: {
         name: "0",
@@ -95,7 +97,7 @@ test('Delete node', () => {
 
   removeNode(nodes.values().next().value.getState().id)
   expect(useStore.getState().nodes.size).toBe(0)
-  expect(JSON.stringify(serialize())).toBe(emptyState);
+  expect(str(serialize())).toBe(str(emptyState));
 })
 
 test('Check default and change position', () => {
@@ -160,12 +162,31 @@ test('Add and remove connections', () => {
     field: secondNodeFields[0],
     direction: ConnectorDirection.output
   }
+
   addConnection(connectionA, connectionB)
   expect(useStore.getState().connections.length).toBe(1)
   expect(useStore.getState().connections[0]).toEqual([utils.makeConnectorId(connectionA), utils.makeConnectorId(connectionB)])
 
   removeConnection(useStore.getState().connections[0])
   expect(useStore.getState().connections.length).toBe(0)
+})
+
+test("Remove connection", () => {
+
+  const state = require('./__fixtures__/connection/delete/state.json')
+  const expected = require('./__fixtures__/connection/delete/expected.json')
+  const { setInitialState, removeConnection } = useStore.getState()
+
+  setInitialState(state)
+
+  removeConnection([
+    "serious-zebra-36_mighty-rabbit-70_OUTPUT",
+    "dull-dragonfly-95_tame-gecko-25_INPUT"
+  ])
+
+  expect(str(useStore.getState().serialize()))
+    .toEqual(str(expected))
+
 })
 
 test('Remove connected field', () => {

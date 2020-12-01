@@ -2,6 +2,8 @@ import Ajv, { ValidateFunction } from 'ajv'
 import create from 'zustand';
 import p from 'immer'
 
+import { ID } from './index'
+
 export enum SchemaStatus {
   VALID,
   INVALID,
@@ -18,23 +20,25 @@ export const createDefaultSchema = (key) => {
 }
 
 type SchemaStore = {
-  jsonSchema: Record<string, any>,
-  error: Error,
+  jsonSchema: Record<string, any> | null,
+  error?: Error,
   status: SchemaStatus,
 
-  set: (newSchema: string) => void
+  set: (newSchema: string) => void,
+  addField: (id: ID) => void,
+  removeField: (id: ID) => void,
 }
 
 export const createSchemaStore = (jsonSchema) => {
   
-  const store = create<SchemaStore>((set, get) => {
+  const store = create<SchemaStore>((set) => {
   const ajv = new Ajv()
   
   return {
     jsonSchema: null,
 
     status: SchemaStatus.MISSING,
-    error: false,
+    error: undefined,
     
     validate: ajv.validate,
     compile: (newSchema) => {
@@ -73,17 +77,17 @@ export const createSchemaStore = (jsonSchema) => {
       }
 
     },
-    removeField: (id: string) => {
+    removeField: (id) => {
       set(p(state => {
         const {jsonSchema} = state
         delete jsonSchema.properties[id]
         return state
       }))
     },
-    addField: (key) => {
+    addField: (id) => {
       set(p(state => {
         const {jsonSchema} = state
-        jsonSchema.properties[key] = createDefaultSchema(key)
+        jsonSchema.properties[id] = createDefaultSchema(id)
         return state
       }))
     }

@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "objedct",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+      {
+          "wise-horse-48": false,
+          "sour-falcon-16": 3
+      }
+  ],
+  "required": [
+      "wise-horse-48",
+      "sour-falcon-16"
+  ],
+  "properties": {
+      "wise-horse-48": {
+          "$id": "#/properties/wise-horse-48",
+          "type": "boolean",
+          "title": "The wise-horse-48 schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": false,
+          "examples": [
+              false
+          ]
+      },
+      "sour-falcon-16": {
+          "$id": "#/properties/sour-falcon-16",
+          "type": "integer",
+          "title": "The sour-falcon-16 schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": 0,
+          "examples": [
+              3
+          ]
+      }
+  },
+  "additionalProperties": true
+}

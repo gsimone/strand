@@ -10,7 +10,7 @@ import { createField, FieldStore, FieldValues } from "./field";
 import { ID } from "./index";
 
 import { uuid } from "../utils"
-import { SchemaStore, createDefaultSchema, createSchemaStore } from './schema';
+import { SchemaStore, createDefaultSchema, createSchemaStore, JsonSchema } from './schema';
 
 export type Position = number[];
 
@@ -18,7 +18,8 @@ export type StateFromJson = {
   nodes: Record<ID, Record<string, any>>;
   fields: Record<ID, Record<string, any>>;
   positions: Record<ID, number[]>;
-  connections: Array<string>;
+  connections: Array<string[]>;
+  schemas: Record<ID, JsonSchema>
 };
 
 export type State = {
@@ -61,6 +62,7 @@ export const useStore = create<State>((set, get) => {
         nodes: new Map(),
         positions: new Map(),
         fields: new Map(),
+        schemas: new Map(),
         connections: [],
       })
     },
@@ -102,6 +104,7 @@ export const useStore = create<State>((set, get) => {
     addNode: (id, name, fields, position) => {
       const n = id || uuid();
       const node = createNode(n, name);
+      const schema = createSchemaStore(createDefaultSchema())
 
       if (fields && fields.length > 0) {
         
@@ -115,6 +118,8 @@ export const useStore = create<State>((set, get) => {
         const field = createField(id, "name", id)
 
         node.getState().addField(id)
+
+        schema.getState().addField(id)
         
         set(p(store => {
           store.fields.set(id, field)
@@ -123,12 +128,13 @@ export const useStore = create<State>((set, get) => {
 
       }
 
+
       set(
         p((store) => {
           store.positions.set(n, position || [100, 100]);
           store.nodes.set(n, node);
 
-          store.schemas.set(n, createSchemaStore(createDefaultSchema()))
+          store.schemas.set(n, schema)
           
           store.active = n;
           return store;
@@ -166,7 +172,7 @@ export const useStore = create<State>((set, get) => {
           removeConnection(connection);
         }
       });
-      
+
       set(p(store => {
         store.fields.delete(id)
         return store
@@ -177,7 +183,7 @@ export const useStore = create<State>((set, get) => {
     active: undefined,
     setActive: (id) => set({ active: id }),
     serialize: () => {
-      const { nodes, positions, fields, connections } = get();
+      const { nodes, positions, fields, connections, schemas } = get();
 
       const _nodes = Array.from(nodes).reduce((acc, [_, x]) => {
         const { id, ...theRest } = x.getState().pick();
@@ -196,16 +202,22 @@ export const useStore = create<State>((set, get) => {
         return acc
       }, {})
 
+      const _schemas = Array.from(schemas).reduce((acc, [id, schema]) => {
+        acc[id] = schema.getState().pick()
+
+        return acc
+      }, {})
+
       return { 
         nodes: _nodes,
         fields: _fields,
         connections,
         positions: _positions,
-        schemas: {}
+        schemas: _schemas
       }
     },
     setInitialState: (initValues) => {
-      const { nodes, fields, connections, positions } = initValues;
+      const { nodes, fields, connections, positions, schemas } = initValues;
 
       const initializedNodes = Object.entries(nodes).map(([id, node]: any) => {
         const _fields = node.fields.reduce((acc, fieldId) => {
@@ -225,6 +237,7 @@ export const useStore = create<State>((set, get) => {
 
         return { node: _node };
       });
+      
 
       set(
         p((store) => {
@@ -233,6 +246,8 @@ export const useStore = create<State>((set, get) => {
 
             store.positions.set(id, positions[id] || [100, 100]);
             store.nodes.set(id, node);
+
+            schemas && schemas[id] && store.schemas.set(id, createSchemaStore(schemas[id]))
           });
 
           store.connections = connections || [];

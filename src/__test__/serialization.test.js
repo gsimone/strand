@@ -81,7 +81,42 @@ describe("Serialization", () => {
           "1": [100, 100],
           "2": [100, 100],
         },
-        schemas: {},
+        schemas: {
+          "1": {
+            "$schema": "http://json-schema.org/draft-07/schema",
+            "$id": "http://example.com/example.json",
+            "type": "object",
+            "title": "The root schema",
+            "description": "The root schema comprises the entire JSON document.",
+            "default": {},
+            "properties": {
+              "0": {
+                $id: `#/properties/0`,
+                type: "string",
+                title: `The 0 Schema`,
+                description: "An explanation about the purpose of this instance.",
+              }
+            },
+            "additionalProperties": true
+          },
+          "2": {
+            "$schema": "http://json-schema.org/draft-07/schema",
+            "$id": "http://example.com/example.json",
+            "type": "object",
+            "title": "The root schema",
+            "description": "The root schema comprises the entire JSON document.",
+            "default": {},
+            "properties": {
+              "1": {
+                $id: `#/properties/1`,
+                type: "string",
+                title: `The 1 Schema`,
+                description: "An explanation about the purpose of this instance.",
+              }
+            },
+            "additionalProperties": true
+          }
+        }
       })
     );
   });

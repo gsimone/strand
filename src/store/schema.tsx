@@ -31,15 +31,15 @@ export const createDefaultFieldSchema = (key) => {
   };
 };
 
-type JsonSchema = {
+export type JsonSchema = {
   $schema?: string;
   $id: string;
   type: string;
   title?: string;
   description?: string;
-  default: Record<string, any>;
+  default?: Record<string, any>;
   required?: string[];
-  properties: Record<string, JsonSchema>;
+  properties?: Record<string, JsonSchema>;
   additionalProperties?: boolean;
   examples?: Record<string, any>[];
 };
@@ -55,6 +55,8 @@ export type Schema = {
 
   getFieldSchema: (id: ID) => JsonSchema;
   setFieldSchema: (id: ID, modifiedSchema: Record<any, any>) => void;
+
+  pick: () => JsonSchema
 };
 
 export type SchemaStore = UseStore<Schema>;
@@ -119,14 +121,18 @@ export const createSchemaStore = (jsonSchema: JsonSchema) => {
         );
       },
       getFieldSchema: (id) => {
-        return get().jsonSchema?.properties[id] as JsonSchema;
+        return get().jsonSchema?.properties![id] as JsonSchema;      },
+      
+      pick: () => {
+        return get().jsonSchema! 
       },
+
       setFieldSchema: (id, modifiedFieldSchema) => {
         const { jsonSchema, set } = get();
 
         const newSchema = p(jsonSchema, (jsonSchema) => {
-          const fieldSchema = jsonSchema!.properties[id];
-          jsonSchema!.properties[id] = {
+          const fieldSchema = jsonSchema!.properties![id];
+          jsonSchema!.properties![id] = {
             ...fieldSchema,
             ...modifiedFieldSchema,
           };

@@ -1,74 +1,78 @@
 {
   "nodes": {
-    "fat-sloth-35": {
-      "name": "fat-sloth-35",
+    "terrible-starfish-84": {
+      "name": "terrible-starfish-84",
       "fields": [
-        "wise-horse-48",
-        "sour-falcon-16"
+        "wise-bullfrog-65"
       ]
     },
-    "dull-dragonfly-95": {
-      "name": "dull-dragonfly-95",
+    "dull-zebra-38": {
+      "name": "dull-zebra-38",
       "fields": [
-        "tame-gecko-25",
-        "polite-lizard-84"
-      ]
-    },
-    "serious-zebra-36": {
-      "name": "serious-zebra-36",
-      "fields": [
-        "mighty-rabbit-70"
+        "young-emu-85"
       ]
     }
   },
   "fields": {
-    "wise-horse-48": {
-      "name": "wise-horse-48",
-      "value": "Field"
+    "wise-bullfrog-65": {
+      "name": "name",
+      "value": "wise-bullfrog-65"
     },
-    "sour-falcon-16": {
-      "name": "sour-falcon-16",
-      "value": "Field"
-    },
-    "tame-gecko-25": {
-      "name": "tame-gecko-25",
-      "value": "Field"
-    },
-    "polite-lizard-84": {
-      "name": "polite-lizard-84",
-      "value": "Field"
-    },
-    "mighty-rabbit-70": {
-      "name": "mighty-rabbit-70",
-      "value": "Field"
+    "young-emu-85": {
+      "name": "name",
+      "value": "young-emu-85"
     }
   },
   "connections": [
     [
-      "serious-zebra-36_mighty-rabbit-70_OUTPUT",
-      "dull-dragonfly-95_tame-gecko-25_INPUT"
-    ],
-    [
-      "fat-sloth-35_wise-horse-48_OUTPUT",
-      "serious-zebra-36_mighty-rabbit-70_INPUT"
-    ],
-    [
-      "fat-sloth-35_sour-falcon-16_OUTPUT",
-      "dull-dragonfly-95_polite-lizard-84_INPUT"
+      "terrible-starfish-84_wise-bullfrog-65_OUTPUT",
+      "dull-zebra-38_young-emu-85_INPUT"
     ]
   ],
   "positions": {
-    "fat-sloth-35": [
-      45,
-      144
+    "terrible-starfish-84": [
+      50,
+      99
     ],
-    "dull-dragonfly-95": [
-      516,
-      544
-    ],
-    "serious-zebra-36": [
-      414,
-      87
+    "dull-zebra-38": [
+      351,
+      130
     ]
+  },
+  "schemas": {
+    "terrible-starfish-84": {
+      "$schema": "http://json-schema.org/draft-07/schema",
+      "$id": "http://example.com/example.json",
+      "type": "object",
+      "title": "The root schema",
+      "description": "The root schema comprises the entire JSON document.",
+      "default": {},
+      "properties": {
+        "wise-bullfrog-65": {
+          "$id": "#/properties/wise-bullfrog-65",
+          "type": "string",
+          "title": "The wise-bullfrog-65 Schema",
+          "description": "An explanation about the purpose of this instance."
+        }
+      },
+      "additionalProperties": true
+    },
+    "dull-zebra-38": {
+      "$schema": "http://json-schema.org/draft-07/schema",
+      "$id": "http://example.com/example.json",
+      "type": "object",
+      "title": "The root schema",
+      "description": "The root schema comprises the entire JSON document.",
+      "default": {},
+      "properties": {
+        "young-emu-85": {
+          "$id": "#/properties/young-emu-85",
+          "type": "string",
+          "title": "The young-emu-85 Schema",
+          "description": "An explanation about the purpose of this instance."
+        }
+      },
+      "additionalProperties": true
+    }
   }
 }

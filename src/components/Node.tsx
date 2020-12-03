@@ -10,12 +10,14 @@ import Edit from "icons/edit";
 import CircleAdd from "icons/circle-add";
 
 import { useStore, NodeStore } from '../store';
+import Close from "icons/close";
 
 type NodeProps = {
   useNode: NodeStore;
 };
 
 function Node({ useNode }: NodeProps) {
+  const removeNode = useStore(state => state.removeNode)
   const { id, name, fields, addField } = useNode();
   const [match, params] = useRoute("/nodes/:id")
 
@@ -43,11 +45,19 @@ function Node({ useNode }: NodeProps) {
           <div className="flex justify-between text-xs font-bold py-2 pb-1 px-4 bg-gray-100 text-gray-800" >
             <span>{name}</span>
 
-            <span className="w-4 h-4">
-              <Link href={`/nodes/${id}`}>
-                <a href={`/nodes/${id}`}><Edit /></a>
-              </Link>
-            </span>
+            <div className="space-x-2 flex ">
+              <span className="w-4 h-4">
+                <button onClick={() => removeNode(id)}>X</button>
+              </span>
+                
+              <span className="w-4 h-4">
+                <Link href={`/nodes/${id}`}>
+                  <a href={`/nodes/${id}`}><Edit /></a>
+                </Link>
+              </span>
+            </div>
+
+           
           </div>
         </NodePosition>
 

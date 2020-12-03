@@ -34,16 +34,6 @@ test('Check default and change position', () => {
   expect(newPositions.values().next().value).toEqual([123, 456])
 })
 
-// test('Add and remove field', () => {
-//   const { addNode } = useStore.getState()
-
-//   addNode("my-node")
- 
-//   const node = useStore.getState().nodes.get("my-node")
-//   console.log(node.fields.next().value())
-
-// })
-
 describe(("Connections"), () => {
   test('Add connection', () => {
     const {addConnection} = useStore.getState()
@@ -136,9 +126,10 @@ describe("Integration tests", () => {
       removeNode("0")
   
       const state = useStore.getState()
-  
+
       expect(state.nodes.get("0")).toBeUndefined()
       expect(state.fields.get("2")).toBeUndefined()
+      expect(state.schemas.get("0")).toBeUndefined()
       expect(state.connections).toHaveLength(0)
     })
   })

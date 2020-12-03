@@ -15,7 +15,6 @@ function Nodes() {
 
   useEffect(() => {
     const { setInitialState } = useStore.getState();
-    // @ts-expect-error
     setInitialState(initialState);
   }, []);
 
@@ -31,7 +30,7 @@ function Nodes() {
 function ConnectedNodeDetails({ id }) {
   const node = useStore(store => store.nodes.get(id))
 
-  return  <div className="h-screen w-64 bg-gray-900 text-white fixed right-0 top-0 z-20 p-4">
+  return  <div className="h-screen bg-gray-900 text-white fixed right-0 top-0 z-20 p-4" style={{width: 400}}>
    <h3>Edit {id} - <Link href="/"><a href="/">Close</a></Link></h3>
    {node ? <NodeDetail id={id} /> : <>Node not found</>}
   </div>

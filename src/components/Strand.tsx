@@ -37,11 +37,11 @@ export function PureStrand({
           const [x, y, x2, y2] = points;
 
           const line = `
-        M${x},${y} 
-        C${(x + x2) / 2},${y} 
-        ${(x2 + x) / 2},${y2} 
-        ${x2},${y2}
-      `;
+            M${x},${y} 
+            C${(x + x2) / 2},${y} 
+            ${(x2 + x) / 2},${y2} 
+            ${x2},${y2}
+          `;
 
           pathRef.current!.children[0].setAttribute("d", line);
           pathRef.current!.children[1].setAttribute("d", line);

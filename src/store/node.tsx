@@ -39,6 +39,7 @@ export const createNode = (id, name) =>
       name: name || id,
       fields: [],
       addField: (id, name, value) => {
+        const nodeId = get().id
         const fieldID = id || uuid();
         const field = createField(fieldID, name, value);
 
@@ -49,6 +50,9 @@ export const createNode = (id, name) =>
             return state;
           })
         );
+
+        // add a property to schema
+        useStore.getState().schemas.get(nodeId)?.getState().addField(fieldID)
 
         set(
           p((node) => {
@@ -62,20 +66,21 @@ export const createNode = (id, name) =>
         const { fields, removeField } = get()
         fields.forEach(removeField)
       },
-      removeField: (id) => {
-        // remove related connections
-        const { removeField } = useStore.getState();
+      removeField: (fieldID) => {
+        const nodeId = get().id
 
         set(
           p((node) => {
-            const index = node.fields.indexOf(id);
+            const index = node.fields.indexOf(fieldID);
 
             node.fields.splice(index, 1);
             return node;
           })
         );
 
-        removeField(id)
+        useStore.getState().schemas.get(nodeId)?.getState().removeField(fieldID)
+
+        useStore.getState().removeField(fieldID)
         
       },
       removeConnections: () => {

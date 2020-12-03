@@ -75,4 +75,20 @@ describe("Field manipulation", () => {
 
   })
 
+  test("Should set a field schema", () => {
+
+    const schema = require('./__fixtures__/valid.json')
+    const store = createSchemaStore(JSON.stringify(schema, null, '  '))
+
+    const {addField, setFieldSchema} = store.getState()
+    addField("new-field")
+    setFieldSchema("new-field", {
+      type: "object"
+    })
+
+    expect(store.getState().status).toBe(SchemaStatus.VALID)
+    expect(store.getState().jsonSchema.properties["new-field"].type).toBe("object")
+
+  })
+
 })

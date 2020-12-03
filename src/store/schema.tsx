@@ -19,8 +19,21 @@ export const createDefaultSchema = (key) => {
   }
 }
 
+type JsonSchema = {
+  $schema?: string,
+  $id: string,
+  type: string,
+  title?: string,
+  description?: string,
+  default: Record<string, any>,
+  required?: string[],
+  properties: Record<string, JsonSchema>,
+  additionalProperties?: boolean,
+  examples: any[]
+}
+
 type SchemaStore = {
-  jsonSchema: Record<string, any> | null,
+  jsonSchema: JsonSchema | null,
   error?: Error,
   status: SchemaStatus,
 
@@ -31,7 +44,7 @@ type SchemaStore = {
 
 export const createSchemaStore = (jsonSchema) => {
   
-  const store = create<SchemaStore>((set) => {
+  const store = create<SchemaStore>((set, get) => {
   const ajv = new Ajv()
   
   return {
@@ -40,7 +53,6 @@ export const createSchemaStore = (jsonSchema) => {
     status: SchemaStatus.MISSING,
     error: undefined,
     
-    validate: ajv.validate,
     compile: (newSchema) => {
       ajv.compile(newSchema)
     },
@@ -49,7 +61,10 @@ export const createSchemaStore = (jsonSchema) => {
 
       // 1. check if valid json
       try {
-        const parsedSchema: Record<string, any> = JSON.parse(newSchema)
+        const parsedSchema: JsonSchema = JSON.parse(newSchema)
+
+        // remove previous version of the schema
+        ajv.removeSchema(parsedSchema.$id)
 
         // 2. check if compiles
         const validate = ajv.compile(parsedSchema)
@@ -90,7 +105,22 @@ export const createSchemaStore = (jsonSchema) => {
         jsonSchema.properties[id] = createDefaultSchema(id)
         return state
       }))
-    }
+    },
+    getFieldSchema: (id) => {
+      return get().jsonSchema?.properties[id]
+    },
+    setFieldSchema: (id, modifiedFieldSchema) => {
+      const { jsonSchema, set } = get()
+
+      const newSchema = p(jsonSchema, jsonSchema => {
+        const fieldSchema = jsonSchema!.properties[id]
+        jsonSchema!.properties[id] = { ...fieldSchema, ...modifiedFieldSchema }
+
+        return jsonSchema
+      })
+
+      set(JSON.stringify(newSchema))
+    } 
   }
 
 })

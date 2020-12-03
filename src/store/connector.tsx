@@ -1,5 +1,6 @@
 import { Ref } from "react";
 import create from "zustand";
+import { ID } from './index';
 
 export enum ConnectorDirection {
   input = "INPUT",
@@ -7,8 +8,8 @@ export enum ConnectorDirection {
 }
 
 export type Connector = {
-  node: number | string;
-  field: number | string;
+  node: ID;
+  field: ID;
   direction: ConnectorDirection;
 };
 

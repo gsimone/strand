@@ -1,4 +1,4 @@
-import create from "zustand";
+import create, { UseStore } from "zustand";
 import p from "immer";
 
 import { createNode, NodeStore } from "./node";
@@ -10,6 +10,7 @@ import { FieldStore, FieldValues } from "./field";
 import { ID } from "./index";
 
 import { uuid } from "../utils"
+import { SchemaStore } from './schema';
 
 export type Position = number[];
 
@@ -24,6 +25,7 @@ export type State = {
   nodes: Map<ID, NodeStore>;
   positions: Map<ID, Position>;
   fields: Map<ID, FieldStore>;
+  schemas: Map<ID, SchemaStore>
   connections: Connection[];
 
   reset: () => void;
@@ -39,6 +41,7 @@ export type State = {
     position?: Array<number>
   ) => void;
   removeNode: (id: ID) => void;
+  removeField: (id: ID) => void;
   active?: ID;
   setActive: (id: ID) => void;
   serialize: () => any;
@@ -50,6 +53,7 @@ export const useStore = create<State>((set, get) => {
     nodes: new Map(),
     positions: new Map(),
     fields: new Map(),
+    schemas: new Map(),
     connections: [],
 
     reset: () => {
@@ -118,18 +122,39 @@ export const useStore = create<State>((set, get) => {
       const { nodes } = get()
       const node = nodes.get(id)
       if (node) {
-        const { removeConnections } = node.getState()
+        const { removeConnections, removeFields } = node.getState()
         removeConnections()
+        removeFields()
       }
 
       set(
         p((store) => {
           store.nodes.delete(id);
           store.positions.delete(id);
+          store.schemas.delete(id);
+
           store.active = null;
           return store;
         })
       );
+    },
+
+    removeField: (id) => {
+      const {connections, removeConnection} = get()
+      
+      connections.forEach((connection: Connection) => {
+        // join the two ends of the connection since we only care if the field id is any of them
+        const connectionString = connection.join("");
+        if (connectionString.indexOf(`${id}`) > -1) {
+          removeConnection(connection);
+        }
+      });
+      
+      set(p(store => {
+        store.fields.delete(id)
+        return store
+      }))
+
     },
 
     active: undefined,
@@ -154,7 +179,13 @@ export const useStore = create<State>((set, get) => {
         return acc
       }, {})
 
-      return { nodes: _nodes, fields: _fields, connections, positions: _positions }
+      return { 
+        nodes: _nodes,
+        fields: _fields,
+        connections,
+        positions: _positions,
+        schemas: {}
+      }
     },
     setInitialState: (initValues) => {
       const { nodes, fields, connections, positions } = initValues;

@@ -4,10 +4,14 @@ import p from "immer";
 import { createField } from './field'
 import { useStore } from './store';
 import { Connection } from './connection'
+import { SchemaStore, createSchemaStore } from './schema';
 import { ID } from "store";
 
 import { uuid } from "../utils"
 import { ConnectorDirection } from "./connector";
+
+import tempJsonSchema from '../__test__/schema/__fixtures__/valid.json'
+import { makeConnectorId } from 'utils';
 
 export type NodeValues = {
   id: ID;
@@ -17,16 +21,19 @@ export type NodeValues = {
 
 export type Node = NodeValues & {
   addField: (id?: ID, name?: string, value?: any) => void;
+  removeFields: () => void;
   removeField: (id: ID) => void;
   pick: () => NodeValues;
   serialize: () => string;
-  removeConnections: () => void
+  removeConnections: () => void,
 };
 
 export type NodeStore = UseStore<Node>;
 
 export const createNode = (id, name) =>
-  create<Node>((set, get) => {
+  {
+    
+    const store = create<Node>((set, get) => {
     return {
       id,
       name: name || id,
@@ -49,24 +56,14 @@ export const createNode = (id, name) =>
           })
         );
       },
+      // cleanup all node fields
+      removeFields: () => {
+        const { fields, removeField } = get()
+        fields.forEach(removeField)
+      },
       removeField: (id) => {
         // remove related connections
-        const { connections, removeConnection } = useStore.getState();
-
-        connections.forEach((connection: Connection) => {
-          // join the two ends of the connection since we only care if the field id is any of them
-          const connectionString = connection.join("");
-          if (connectionString.indexOf(`${id}`) > -1) {
-            removeConnection(connection);
-          }
-        });
-
-        useStore.setState(
-          p((state) => {
-            state.fields.delete(id);
-            return state;
-          })
-        );
+        const { removeField } = useStore.getState();
 
         set(
           p((node) => {
@@ -76,16 +73,20 @@ export const createNode = (id, name) =>
             return node;
           })
         );
+
+        removeField(id)
+        
       },
       removeConnections: () => {
         const { connections } = useStore.getState();
         const { id, fields } = get()
         
         const possibleConnections = fields.reduce((acc, field) => {
-          acc.push(`${id}_${field}_${ConnectorDirection.input}`)
-          acc.push(`${id}_${field}_${ConnectorDirection.output}`)
+          acc.push(makeConnectorId({node: id, field, direction: ConnectorDirection.input}))
+          acc.push(makeConnectorId({node: id, field, direction: ConnectorDirection.output}))
           return acc
         }, [] as string[])
+        
         const newConnections = connections.filter(([connectionIn, connectionOut]) => !(possibleConnections.includes(connectionIn)||possibleConnections.includes(connectionOut)))
         
         useStore.setState(
@@ -104,4 +105,7 @@ export const createNode = (id, name) =>
         return JSON.stringify(pick());
       },
     };
-  });
+  })
+
+  return store
+};

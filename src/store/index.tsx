@@ -9,3 +9,4 @@ export * from "./field";
 export * from "./connector";
 export * from "./connection";
 export * from "./store";
+export * from "./schema";

@@ -1,9 +1,5 @@
 import { useStore } from "../store";
 
-import emptyState from './__fixtures__/empty.json'
-import simpleNode from './__fixtures__/simple-node-string.js'
-import connection from './__fixtures__/connection.json'
-
 import { ConnectorDirection } from "../store/connector"
 
 const str = (x, replace = null, space = '  ') => JSON.stringify(x, replace, space)
@@ -21,83 +17,6 @@ const utils = require('../utils');
 beforeEach(() => {
   useStore.getState().reset()
   utils.reset()
-})
-
-test('Empty store serialize', () => {
-  const { serialize } = useStore.getState()
-  expect(str(serialize())).toEqual(str(emptyState));
-})
-
-test('Add one node', () => {
-  const { serialize, addNode } = useStore.getState()
-  
-  addNode()
-  
-  const { nodes } = useStore.getState()
-
-  // is not equal to an empty state JSON
-  expect(serialize()).not.toBe(emptyState);
-  
-  // a node exists
-  expect(nodes.size).toBe(1);
-
-  const iterator = nodes.values();
-  const node = iterator.next().value
-
-  // node doesn't have any field
-  expect(nodes.get(node.getState().id).getState().fields.length).toBe(0);
-})
-
-test("Serialize", () => {
-
-  const { serialize, addNode } = useStore.getState()
-
-  addNode()
-  addNode()
-
-  expect(str(serialize())).toBe(str({
-    nodes: {
-      0: {
-        name: "0",
-        fields: [],
-      },
-      1: { name: "1", fields: [] },
-    },
-    fields: {},
-    connections: [],
-    positions: {
-      0: [100,100],
-      1: [100,100]
-    }
-  }));
-    
-})
-
-test('Init node from json', () => {
-  const { setInitialState } = useStore.getState()
-  setInitialState(JSON.parse(simpleNode));
- 
-  const { nodes } = useStore.getState()
-
-  expect(nodes.size).toBe(1)
-  expect(nodes.values().next().value.getState().pick())
-    .toMatchObject({
-      "id": "black-quail-45",
-      "name": "black-quail-45",
-      "fields": []
-  })
-})
-
-test('Delete node', () => {
-  const { serialize, addNode, removeNode } = useStore.getState()
-  addNode()
- 
-  const { nodes } = useStore.getState()
-  expect(nodes.size).toBe(1)
-
-  removeNode(nodes.values().next().value.getState().id)
-  expect(useStore.getState().nodes.size).toBe(0)
-  expect(str(serialize())).toBe(str(emptyState));
 })
 
 test('Check default and change position', () => {
@@ -135,82 +54,76 @@ test('Add and remove field', () => {
   expect(useStore.getState().fields.size).toBe(0)
 })
 
-test('Add and remove connections', () => {
-  const { addNode, addConnection, removeConnection } = useStore.getState()
-  addNode()
-  addNode()
- 
-  const { nodes } = useStore.getState()
-  nodes.forEach(node => {
-    const { addField } = node.getState()
-    addField()
+describe(("Connections"), () => {
+  test('Add connection', () => {
+    const {addConnection} = useStore.getState()
+  
+    const connectionA = {
+      node: "node-A",
+      field: "field-0",
+      direction: ConnectorDirection.input
+    }
+  
+    const connectionB =  {
+      node: "node-B",
+      field: "field-1",
+      direction: ConnectorDirection.output
+    }
+  
+    addConnection(connectionA, connectionB)
+    expect(useStore.getState().connections[0])
+      .toEqual([utils.makeConnectorId(connectionA), utils.makeConnectorId(connectionB)])
   })
   
-  expect(useStore.getState().connections.length).toBe(0)
-
-  const nodeIterator = nodes.values()
-  const { id: firstNodeId, fields: firstNodeFields } = nodeIterator.next().value.getState()
-  const {  id: secondNodeId, fields: secondNodeFields } = nodeIterator.next().value.getState()
-
-  const connectionA = {
-    node: firstNodeId,
-    field: firstNodeFields[0],
-    direction: ConnectorDirection.input
-  }
-  const connectionB =  {
-    node: secondNodeId,
-    field: secondNodeFields[0],
-    direction: ConnectorDirection.output
-  }
-
-  addConnection(connectionA, connectionB)
-  expect(useStore.getState().connections.length).toBe(1)
-  expect(useStore.getState().connections[0]).toEqual([utils.makeConnectorId(connectionA), utils.makeConnectorId(connectionB)])
-
-  removeConnection(useStore.getState().connections[0])
-  expect(useStore.getState().connections.length).toBe(0)
-})
-
-test("Remove connection", () => {
-
-  const state = require('./__fixtures__/connection/delete/state.json')
-  const expected = require('./__fixtures__/connection/delete/expected.json')
-  const { setInitialState, removeConnection } = useStore.getState()
-
-  setInitialState(state)
-
-  removeConnection([
-    "serious-zebra-36_mighty-rabbit-70_OUTPUT",
-    "dull-dragonfly-95_tame-gecko-25_INPUT"
-  ])
-
-  expect(str(useStore.getState().serialize()))
-    .toEqual(str(expected))
-
-})
-
-test('Remove connected field', () => {
-  const { setInitialState } = useStore.getState()
-  setInitialState(connection)
-  expect(useStore.getState().connections.length).toBe(1)
+  test("Remove connection", () => {
   
-  const { nodes } = useStore.getState()
-  const { fields, removeField } = nodes.values().next().value.getState()
+    const state = require('./__fixtures__/connection/delete/state.json')
+    const expected = require('./__fixtures__/connection/delete/expected.json')
+    const { setInitialState, removeConnection } = useStore.getState()
   
-  removeField(fields[0])
-  expect(useStore.getState().connections.length).toBe(0)
+    setInitialState(state)
+  
+    removeConnection([
+      "serious-zebra-36_mighty-rabbit-70_OUTPUT",
+      "dull-dragonfly-95_tame-gecko-25_INPUT"
+    ])
+  
+    expect(str(useStore.getState().serialize().connections))
+      .toEqual(str(expected.connections))
+  
+  })
 })
 
-test('Remove node with a connected field', () => {
-  const { setInitialState, removeNode } = useStore.getState()
-  setInitialState(connection)
-  expect(useStore.getState().connections.length).toBe(1)
-  
-  const { nodes } = useStore.getState()
-  const { id } = nodes.values().next().value.getState()
-  removeNode(id)
+describe("Integration tests", () => {
 
-  expect(useStore.getState().connections.length).toBe(0)
+  const connection = require('./__fixtures__/connection.json')
+
+  test("It should remove connections when connected field is removed", () => {
+    const { setInitialState } = useStore.getState()
+    setInitialState(connection)
+    
+    const { nodes } = useStore.getState()
+    const { fields, removeField } = nodes.get("0").getState()
+    
+    removeField(fields[0])
+    expect(useStore.getState().connections.length).toBe(0)
+  })
+
+  test('It should remove connections and fields when a node is removed', () => {
+    const { setInitialState, removeNode } = useStore.getState()
+    setInitialState(connection)
+    
+    removeNode("0")
+
+    const state = useStore.getState()
+
+    expect(state.nodes.get("0")).toBeUndefined()
+    expect(state.fields.get("2")).toBeUndefined()
+    expect(state.connections).toHaveLength(0)
+  })
+
 })
+
+
 
 

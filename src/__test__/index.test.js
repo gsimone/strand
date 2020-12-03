@@ -1,4 +1,4 @@
-import { useStore } from "../store";
+import { SchemaStatus, useStore } from "../store";
 
 import { ConnectorDirection } from "../store/connector"
 
@@ -34,25 +34,15 @@ test('Check default and change position', () => {
   expect(newPositions.values().next().value).toEqual([123, 456])
 })
 
-test('Add and remove field', () => {
-  const { addNode } = useStore.getState()
-  addNode()
+// test('Add and remove field', () => {
+//   const { addNode } = useStore.getState()
+
+//   addNode("my-node")
  
-  const { nodes } = useStore.getState()
-  const { fields: oldFields, addField, removeField } = nodes.values().next().value.getState()
-  expect(oldFields.length).toBe(0)
-  expect(useStore.getState().fields.size).toBe(0)
+//   const node = useStore.getState().nodes.get("my-node")
+//   console.log(node.fields.next().value())
 
-  addField("my-field-id", "my-field-name", "my-field-value")
-  const { fields: newFields } = nodes.values().next().value.getState()
-  expect(newFields.length).toBe(1)
-  expect(useStore.getState().fields.size).toBe(1)
-
-  removeField("my-field-id")
-  const { fields: removedFields } = nodes.values().next().value.getState()
-  expect(removedFields.length).toBe(0)
-  expect(useStore.getState().fields.size).toBe(0)
-})
+// })
 
 describe(("Connections"), () => {
   test('Add connection', () => {
@@ -96,30 +86,61 @@ describe(("Connections"), () => {
 
 describe("Integration tests", () => {
 
-  const connection = require('./__fixtures__/connection.json')
+  describe("Nodes, fields, schemas", () => {
 
-  test("It should remove connections when connected field is removed", () => {
-    const { setInitialState } = useStore.getState()
-    setInitialState(connection)
-    
-    const { nodes } = useStore.getState()
-    const { fields, removeField } = nodes.get("0").getState()
-    
-    removeField(fields[0])
-    expect(useStore.getState().connections.length).toBe(0)
+    test("It should create all necessary data when adding a new node", () => {
+
+      const { addNode } = useStore.getState()
+
+      addNode("my-node")
+
+      // 1. node is created
+      const node = useStore.getState().nodes.get("my-node")
+      expect(node).not.toBeUndefined()
+
+      // 2. schema is created & valid
+      const schemaStore = useStore.getState().schemas.get("my-node")
+      expect(schemaStore).not.toBeUndefined()
+
+      const schema = schemaStore.getState()
+      expect(schema.status).toBe(SchemaStatus.VALID)
+
+      // 3. a default field is created and assigned to the node
+      expect(node.getState().fields).toHaveLength(1)
+      expect(node.getState().fields[0]).toBe("0")
+      expect(useStore.getState().fields.values().next().value.getState().id).toBe("0")
+
+    })
+
   })
+  
+  // connections are tested on their own since they are mostly indipendent from state
+  describe("Connections", () => {
+    const connection = require('./__fixtures__/connection.json')
 
-  test('It should remove connections and fields when a node is removed', () => {
-    const { setInitialState, removeNode } = useStore.getState()
-    setInitialState(connection)
-    
-    removeNode("0")
+    test("It should remove connections when connected field is removed", () => {
+      const { setInitialState } = useStore.getState()
+      setInitialState(connection)
+      
+      const { nodes } = useStore.getState()
+      const { fields, removeField } = nodes.get("0").getState()
+      
+      removeField(fields[0])
+      expect(useStore.getState().connections.length).toBe(0)
+    })
 
-    const state = useStore.getState()
-
-    expect(state.nodes.get("0")).toBeUndefined()
-    expect(state.fields.get("2")).toBeUndefined()
-    expect(state.connections).toHaveLength(0)
+    test('It should remove connections and fields when a node is removed', () => {
+      const { setInitialState, removeNode } = useStore.getState()
+      setInitialState(connection)
+      
+      removeNode("0")
+  
+      const state = useStore.getState()
+  
+      expect(state.nodes.get("0")).toBeUndefined()
+      expect(state.fields.get("2")).toBeUndefined()
+      expect(state.connections).toHaveLength(0)
+    })
   })
 
 })

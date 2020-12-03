@@ -10,7 +10,19 @@ export enum SchemaStatus {
   MISSING,
 }
 
-export const createDefaultSchema = (key) => {
+export const createDefaultSchema = () => ({
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "properties": {
+  },
+  "additionalProperties": true
+})
+
+export const createDefaultFieldSchema = (key) => {
   return {
     $id: `#/properties/${key}`,
     type: "string",
@@ -29,7 +41,7 @@ type JsonSchema = {
   required?: string[];
   properties: Record<string, JsonSchema>;
   additionalProperties?: boolean;
-  examples: any[];
+  examples?: Record<string, any>[];
 };
 
 export type Schema = {
@@ -37,7 +49,7 @@ export type Schema = {
   error?: Error;
   status: SchemaStatus;
 
-  set: (newSchema: string) => void;
+  set: (newSchema: JsonSchema | string) => void;
   addField: (id: ID) => void;
   removeField: (id: ID) => void;
 
@@ -47,7 +59,7 @@ export type Schema = {
 
 export type SchemaStore = UseStore<Schema>;
 
-export const createSchemaStore = (jsonSchema) => {
+export const createSchemaStore = (jsonSchema: JsonSchema) => {
   const store = create<Schema>((set, get) => {
     const ajv = new Ajv();
 
@@ -61,7 +73,7 @@ export const createSchemaStore = (jsonSchema) => {
       set: (newSchema) => {
         // 1. check if valid json
         try {
-          const parsedSchema: JsonSchema = JSON.parse(newSchema);
+          const parsedSchema: JsonSchema = typeof newSchema === "string" ? JSON.parse(newSchema) : newSchema;
 
           // remove previous version of the schema
           ajv.removeSchema(parsedSchema.$id);
@@ -73,8 +85,8 @@ export const createSchemaStore = (jsonSchema) => {
 
           // if no examples, consider valid but warn about missing examples
 
-          if ("examples" in parsedSchema && parsedSchema.examples.length > 0) {
-            const results = parsedSchema.examples.map((example) => {
+          if ("examples" in parsedSchema && (parsedSchema.examples!).length > 0) {
+            const results = parsedSchema.examples!.map((example) => {
               return validate(example);
             });
 
@@ -101,7 +113,7 @@ export const createSchemaStore = (jsonSchema) => {
         set(
           p((state) => {
             const { jsonSchema } = state;
-            jsonSchema.properties[id] = createDefaultSchema(id);
+            jsonSchema.properties[id] = createDefaultFieldSchema(id);
             return state;
           })
         );

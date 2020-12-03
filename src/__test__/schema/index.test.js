@@ -1,5 +1,4 @@
-import ajv from 'ajv'
-import { createSchemaStore, createDefaultSchema, SchemaStatus } from '../../store/schema'
+import { createSchemaStore, SchemaStatus, createDefaultFieldSchema } from '../../store/schema'
 
 describe('Validity', () => {
   test("Should correctly set the new schema when valid", () => {
@@ -71,7 +70,7 @@ describe("Field manipulation", () => {
 
     store.getState().addField("new-field")
    
-    expect(store.getState().jsonSchema.properties["new-field"]).toEqual(createDefaultSchema('new-field'))
+    expect(store.getState().jsonSchema.properties["new-field"]).toEqual(createDefaultFieldSchema('new-field'))
 
   })
 

@@ -1,9 +1,10 @@
 import create, { UseStore } from "zustand";
+import { ID } from './index';
 
 export type FieldValues = {
-  id: number;
+  id: ID;
   name: string;
-  value: string;
+  value: string | number;
 };
 
 export type Field = FieldValues & {
@@ -14,7 +15,7 @@ export type Field = FieldValues & {
 
 export type FieldStore = UseStore<Field>;
 
-export const createField = (id, name, value) =>
+export const createField = (id: ID, name?, value?) =>
   create<Field>((set, get) => ({
     id,
     name: name || id,

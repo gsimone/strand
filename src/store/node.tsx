@@ -42,6 +42,7 @@ export const createNode = (id, name) =>
         const fieldID = id || uuid();
         const field = createField(fieldID, name, value);
 
+        // @TODO create an action in the main state for this
         useStore.setState(
           p((state) => {
             state.fields.set(fieldID, field);

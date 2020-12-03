@@ -6,11 +6,11 @@ import { useConnectionStore, Connection } from "./connection";
 import { Connector } from "./connector";
 
 import { makeConnectorId } from "../utils";
-import { FieldStore, FieldValues } from "./field";
+import { createField, FieldStore, FieldValues } from "./field";
 import { ID } from "./index";
 
 import { uuid } from "../utils"
-import { SchemaStore } from './schema';
+import { SchemaStore, createDefaultSchema, createSchemaStore } from './schema';
 
 export type Position = number[];
 
@@ -104,15 +104,32 @@ export const useStore = create<State>((set, get) => {
       const node = createNode(n, name);
 
       if (fields && fields.length > 0) {
+        
         fields.forEach((field) =>
           node.getState().addField(field.id, field.name, field.value)
         );
+        
+      } else {
+
+        const id = uuid()
+        const field = createField(id, "name", id)
+
+        node.getState().addField(id)
+        
+        set(p(store => {
+          store.fields.set(id, field)
+          return store
+        }))
+
       }
 
       set(
         p((store) => {
           store.positions.set(n, position || [100, 100]);
           store.nodes.set(n, node);
+
+          store.schemas.set(n, createSchemaStore(createDefaultSchema()))
+          
           store.active = n;
           return store;
         })

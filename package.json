@@ -13,6 +13,7 @@
     "history": "^5.0.0",
     "human-readable-ids": "^1.0.4",
     "immer": "^8.0.0",
+    "jsoneditor": "^9.1.4",
     "jsonschema": "^1.4.0",
     "lodash.debounce": "^4.0.8",
     "lodash.omit": "^4.5.0",

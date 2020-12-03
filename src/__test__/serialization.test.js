@@ -31,7 +31,7 @@ describe("Serialization", () => {
   test("Serialize one node", () => {
     const { serialize, addNode } = useStore.getState();
 
-    addNode();
+    addNode("my-node");
 
     const { nodes } = useStore.getState();
 
@@ -44,30 +44,42 @@ describe("Serialization", () => {
     const iterator = nodes.values();
     const node = iterator.next().value;
 
-    // node doesn't have any field
-    expect(nodes.get(node.getState().id).getState().fields.length).toBe(0);
+    // node has a default field
+    expect(nodes.get(node.getState().id).getState().fields.length).toBe(1);
   });
 
   test("Serialize multiple nodes", () => {
     const { serialize, addNode } = useStore.getState();
 
-    addNode();
-    addNode();
+    addNode("1");
+    addNode("2");
 
     expect(str(serialize())).toBe(
       str({
         nodes: {
-          0: {
-            name: "0",
-            fields: [],
+          "1": {
+            name: "1",
+            fields: ["0"],
           },
-          1: { name: "1", fields: [] },
+          "2": { 
+            name: "2", 
+            fields: ["1"]
+          },
         },
-        fields: {},
+        fields: {
+          "0": {
+            "name": "name",
+            "value": "0"
+          },
+            "1": {
+            "name": "name",
+            "value": "1"
+          }
+        },
         connections: [],
         positions: {
-          0: [100, 100],
-          1: [100, 100],
+          "1": [100, 100],
+          "2": [100, 100],
         },
         schemas: {},
       })

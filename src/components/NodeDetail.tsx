@@ -1,22 +1,120 @@
 import * as React from 'react'
 
-import { useStore } from "../store";
+import { ID, SchemaStore, useStore } from "../store";
 import { Link } from 'wouter';
 
-function FieldDetails({ id, useSchema }) {
-  
+type FieldDetailsProps = {
+  useSchema: SchemaStore,
+  id: ID
+}
+
+// this function will probably need to be different
+function makeSchemaOfType(type) {
+
+  if (type === "string") {
+    return {
+      "type": "string",
+      "default": ""
+    }
+  }
+
+  if (type === "number") {
+    return {
+      type,
+      default: 0
+    }
+  }
+
+  if (type === "file") {
+    return {
+      type: "object",
+      default: {
+        key: "test",
+        bucket: "another test"
+      }
+    }
+  }
+
+  return {
+    type: "object",
+    default: {}
+  }
+
+}
+
+function FieldDetails({ id, useSchema }: FieldDetailsProps) {
+
+  const useField = useStore(store => store.fields.get(id))!
+  const {name, setValue} = useField()
+
+  const setFieldSchema = useSchema(store => store.setFieldSchema)
+
+  /* Initial type for the field-type select */
+  const initialType = React.useMemo(() => {
+    return useSchema.getState().getFieldSchema(id).type
+  }, [id, useSchema])
+
+  const handleNameChange = React.useCallback((e) => {
+    setValue({
+      name: e.target.value
+    })
+  }, [setValue])
+ 
+  const handleTypeChange = React.useCallback((e) => {
+    setFieldSchema(id, makeSchemaOfType(e.target.value))
+  }, [setFieldSchema, id])
+
   return (
     <div className="mb-8">
-      <h3 className="text-lg font-bold">Field {id} Schema</h3>
-      <Link href={`${id}/edit`}>
-        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-        <a className="hover:underline">Edit Field schema</a>
-      </Link>
+      <h3 className="text-lg font-bold mb-4">Field {id}</h3>
+
+      <div>
+
+        <div className="mb-4">
+          <label htmlFor="fieldName" className="block text-sm font-medium text-gray-200">Name</label>
+          <input type="text" 
+            id="fieldName"
+            className="
+              mt-1 block w-full pl-3 pr-10 py-2 
+              text-base border-gray-900 
+              text-gray-100
+              bg-gray-700
+              focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm 
+              rounded-md" 
+              onChange={handleNameChange}
+            value={name} 
+          />
+  
+        </div>
+
+        <div>
+          <div>
+            <label htmlFor="fieldType" className="block text-sm font-medium text-gray-200">Field Type</label>
+            <select 
+              id="fieldType" 
+              name="fieldType" 
+              onChange={handleTypeChange}
+              defaultValue={initialType}
+              className="
+                mt-1 block w-full pl-3 pr-10 py-2 
+                text-base border-gray-900 
+                text-gray-100
+                bg-gray-700
+                focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+              <option>string</option>
+              <option>number</option>
+              <option>file</option>
+              <option>object</option>
+            </select>
+          </div>
+        </div>
+        
+      </div>
     </div>
   )
 }
 
-function NodeTitle({useNode}) {
+function NodeTitle({ useNode }) {
   const {name, id} = useNode()
   
   return <div className="mb-8">

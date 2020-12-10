@@ -1,4 +1,4 @@
-import create, { UseStore } from "zustand";
+import create from "zustand";
 import p from "immer";
 
 import { createNode, NodeStore } from "./node";

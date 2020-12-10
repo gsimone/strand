@@ -3,14 +3,11 @@ import p from "immer";
 
 import { createField } from './field'
 import { useStore } from './store';
-import { Connection } from './connection'
-import { SchemaStore, createSchemaStore } from './schema';
 import { ID } from "store";
 
 import { uuid } from "../utils"
 import { ConnectorDirection } from "./connector";
 
-import tempJsonSchema from '../__test__/schema/__fixtures__/valid.json'
 import { makeConnectorId } from 'utils';
 
 export type NodeValues = {

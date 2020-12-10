@@ -1,4 +1,4 @@
-import Ajv, { ValidateFunction } from "ajv";
+import Ajv from "ajv";
 import create, { UseStore } from "zustand";
 import p from "immer";
 

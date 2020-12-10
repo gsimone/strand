@@ -10,7 +10,6 @@ import Edit from "icons/edit";
 import CircleAdd from "icons/circle-add";
 
 import { useStore, NodeStore } from '../store';
-import Close from "icons/close";
 
 type NodeProps = {
   useNode: NodeStore;

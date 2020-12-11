@@ -3,13 +3,23 @@
     "terrible-starfish-84": {
       "name": "terrible-starfish-84",
       "fields": [
-        "wise-bullfrog-65"
+        "wise-bullfrog-65",
+        "young-dragonfly-30"
       ]
     },
     "dull-zebra-38": {
       "name": "dull-zebra-38",
       "fields": [
-        "young-emu-85"
+        "young-emu-85",
+        "brave-octopus-82",
+        "witty-mole-35"
+      ]
+    },
+    "blue-seahorse-7": {
+      "name": "blue-seahorse-7",
+      "fields": [
+        "nice-dingo-14",
+        "silent-moose-12"
       ]
     }
   },
@@ -18,15 +28,39 @@
       "name": "name",
       "value": "wise-bullfrog-65"
     },
+    "young-dragonfly-30": {
+      "name": "young-dragonfly-30",
+      "value": "Field"
+    },
     "young-emu-85": {
-      "name": "name",
+      "name": "A string field",
       "value": "young-emu-85"
+    },
+    "brave-octopus-82": {
+      "name": "An object field",
+      "value": "Field"
+    },
+    "witty-mole-35": {
+      "name": "A file field",
+      "value": "Field"
+    },
+    "nice-dingo-14": {
+      "name": "name",
+      "value": "nice-dingo-14"
+    },
+    "silent-moose-12": {
+      "name": "silent-moose-12",
+      "value": "Field"
     }
   },
   "connections": [
     [
       "terrible-starfish-84_wise-bullfrog-65_OUTPUT",
       "dull-zebra-38_young-emu-85_INPUT"
+    ],
+    [
+      "blue-seahorse-7_nice-dingo-14_OUTPUT",
+      "dull-zebra-38_witty-mole-35_INPUT"
     ]
   ],
   "positions": {
@@ -35,8 +69,12 @@
       99
     ],
     "dull-zebra-38": [
-      351,
-      130
+      371,
+      142
+    ],
+    "blue-seahorse-7": [
+      56,
+      288
     ]
   },
   "schemas": {
@@ -53,6 +91,12 @@
           "type": "string",
           "title": "The wise-bullfrog-65 Schema",
           "description": "An explanation about the purpose of this instance."
+        },
+        "young-dragonfly-30": {
+          "$id": "#/properties/young-dragonfly-30",
+          "type": "string",
+          "title": "The young-dragonfly-30 Schema",
+          "description": "An explanation about the purpose of this instance."
         }
       },
       "additionalProperties": true
@@ -66,9 +110,119 @@
       "default": {},
       "properties": {
         "young-emu-85": {
-          "$id": "#/properties/young-emu-85",
+          "$id": "#/properties/lorem-ipsum",
           "type": "string",
-          "title": "The young-emu-85 Schema",
+          "title": "PDF/doc/etc del preventivo inviato al cliente",
+          "description": "An explanation about the purpose of this instance.",
+          "default": "",
+          "examples": [
+            {
+              "bucket": "http://aws.aws.aws",
+              "key": "fjhtyr74839woolskdfjhytr4u8eikd"
+            }
+          ],
+          "required": [
+            "bucket",
+            "key"
+          ],
+          "properties": {
+            "bucket": {
+              "$id": "#/properties/lorem-ipsum/properties/bucket",
+              "type": "string",
+              "title": "The bucket schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": "",
+              "examples": [
+                "http://aws.aws.aws"
+              ]
+            },
+            "key": {
+              "$id": "#/properties/lorem-ipsum/properties/key",
+              "type": "string",
+              "title": "The key schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": "",
+              "examples": [
+                "fjhtyr74839woolskdfjhytr4u8eikd"
+              ]
+            }
+          },
+          "additionalProperties": true
+        },
+        "brave-octopus-82": {
+          "$id": "#/properties/lorem-ipsum",
+          "type": "object",
+          "title": "PDF/doc/etc del preventivo inviato al cliente",
+          "description": "An explanation about the purpose of this instance.",
+          "default": {
+            "key": "test",
+            "bucket": "another test"
+          },
+          "examples": [
+            {
+              "bucket": "http://aws.aws.aws",
+              "key": "fjhtyr74839woolskdfjhytr4u8eikd"
+            }
+          ],
+          "required": [
+            "bucket",
+            "key"
+          ],
+          "properties": {
+            "bucket": {
+              "$id": "#/properties/lorem-ipsum/properties/bucket",
+              "type": "string",
+              "title": "The bucket schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": "",
+              "examples": [
+                "http://aws.aws.aws"
+              ]
+            },
+            "key": {
+              "$id": "#/properties/lorem-ipsum/properties/key",
+              "type": "string",
+              "title": "The key schema",
+              "description": "An explanation about the purpose of this instance.",
+              "default": "",
+              "examples": [
+                "fjhtyr74839woolskdfjhytr4u8eikd"
+              ]
+            }
+          },
+          "additionalProperties": true
+        },
+        "witty-mole-35": {
+          "$id": "#/properties/witty-mole-35",
+          "type": "object",
+          "title": "The witty-mole-35 Schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": {
+            "key": "test",
+            "bucket": "another test"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "blue-seahorse-7": {
+      "$schema": "http://json-schema.org/draft-07/schema",
+      "$id": "http://example.com/example.json",
+      "type": "object",
+      "title": "The root schema",
+      "description": "The root schema comprises the entire JSON document.",
+      "default": {},
+      "properties": {
+        "nice-dingo-14": {
+          "$id": "#/properties/nice-dingo-14",
+          "type": "string",
+          "title": "The nice-dingo-14 Schema",
+          "description": "An explanation about the purpose of this instance."
+        },
+        "silent-moose-12": {
+          "$id": "#/properties/silent-moose-12",
+          "type": "string",
+          "title": "The silent-moose-12 Schema",
           "description": "An explanation about the purpose of this instance."
         }
       },

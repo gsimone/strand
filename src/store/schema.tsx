@@ -10,6 +10,45 @@ export enum SchemaStatus {
   MISSING,
 }
 
+export const createFileSchema = id => ({
+  "$id":`#/properties/${id}`,
+  "description":"An explanation about the purpose of this instance.",
+  "examples":[
+     {
+        "bucket":"http://aws.aws.aws",
+        "key":"fjhtyr74839woolskdfjhytr4u8eikd"
+     }
+  ],
+  "required":[
+     "bucket",
+     "key"
+  ],
+  "title":"PDF/doc/etc del preventivo inviato al cliente",
+  "properties":{
+     "bucket":{
+        "$id": `#/properties/${id}/properties/bucket`,
+        "type":"string",
+        "title":"The bucket schema",
+        "description":"An explanation about the purpose of this instance.",
+        "default":"",
+        "examples":[
+           "http://aws.aws.aws"
+        ]
+     },
+     "key":{
+        "$id": `#/properties/${id}/properties/key`,
+        "type":"string",
+        "title":"The key schema",
+        "description":"An explanation about the purpose of this instance.",
+        "default":"",
+        "examples":[
+           "fjhtyr74839woolskdfjhytr4u8eikd"
+        ]
+     }
+  },
+  "additionalProperties":true
+})
+
 export const createDefaultSchema = () => ({
   "$schema": "http://json-schema.org/draft-07/schema",
   "$id": "http://example.com/example.json",
@@ -37,11 +76,11 @@ export type JsonSchema = {
   type: string;
   title?: string;
   description?: string;
-  default?: Record<string, any>;
+  default?: any;
   required?: string[];
   properties?: Record<string, JsonSchema>;
   additionalProperties?: boolean;
-  examples?: Record<string, any>[];
+  examples?: any[];
 };
 
 export type Schema = {

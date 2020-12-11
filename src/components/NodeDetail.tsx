@@ -2,6 +2,7 @@ import * as React from 'react'
 
 import { ID, SchemaStore, useStore } from "../store";
 import { Link } from 'wouter';
+import { createFileSchema } from '../store/schema';
 
 type FieldDetailsProps = {
   useSchema: SchemaStore,
@@ -26,19 +27,27 @@ function makeSchemaOfType(type) {
   }
 
   if (type === "file") {
-    return {
-      type: "object",
-      default: {
-        key: "test",
-        bucket: "another test"
-      }
-    }
+    return createFileSchema("lorem-ipsum")
   }
 
   return {
     type: "object",
     default: {}
   }
+
+}
+
+function recognizeType(schema) {
+  if (schema.type === "object") {
+    if (typeof schema.properties === "undefined") return "object"
+    if (schema.properties.hasOwnProperty("key") && schema.properties.hasOwnProperty("bucket")) {
+      return "file"
+    }
+
+    return "object"
+  }
+
+  return schema.type
 
 }
 
@@ -51,7 +60,12 @@ function FieldDetails({ id, useSchema }: FieldDetailsProps) {
 
   /* Initial type for the field-type select */
   const initialType = React.useMemo(() => {
-    return useSchema.getState().getFieldSchema(id).type
+    const schema = useSchema.getState().getFieldSchema(id)
+    if (typeof schema !== "undefined") {
+      return recognizeType(schema)
+    }
+
+    return ''
   }, [id, useSchema])
 
   const handleNameChange = React.useCallback((e) => {
@@ -101,10 +115,10 @@ function FieldDetails({ id, useSchema }: FieldDetailsProps) {
                 text-gray-100
                 bg-gray-700
                 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-              <option>string</option>
-              <option>number</option>
-              <option>file</option>
-              <option>object</option>
+              <option value="string">string</option>
+              <option value="number">number</option>
+              <option value="file">file</option>
+              <option value="object">object</option>
             </select>
           </div>
         </div>

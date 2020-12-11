@@ -12,7 +12,7 @@ export enum SchemaStatus {
 
 export const createFileSchema = id => ({
   "$id":`#/properties/${id}`,
-  "description":"An explanation about the purpose of this instance.",
+  "description":"An explanation about the purpose of this field.",
   "examples":[
      {
         "bucket":"http://aws.aws.aws",
@@ -23,13 +23,13 @@ export const createFileSchema = id => ({
      "bucket",
      "key"
   ],
-  "title":"PDF/doc/etc del preventivo inviato al cliente",
+  "title": "Field title",
   "properties":{
      "bucket":{
         "$id": `#/properties/${id}/properties/bucket`,
         "type":"string",
         "title":"The bucket schema",
-        "description":"An explanation about the purpose of this instance.",
+        "description":"An explanation about the purpose of this field.",
         "default":"",
         "examples":[
            "http://aws.aws.aws"
@@ -39,7 +39,7 @@ export const createFileSchema = id => ({
         "$id": `#/properties/${id}/properties/key`,
         "type":"string",
         "title":"The key schema",
-        "description":"An explanation about the purpose of this instance.",
+        "description":"An explanation about the purpose of this field.",
         "default":"",
         "examples":[
            "fjhtyr74839woolskdfjhytr4u8eikd"
@@ -65,8 +65,8 @@ export const createDefaultFieldSchema = (key) => {
   return {
     $id: `#/properties/${key}`,
     type: "string",
-    title: `The ${key} Schema`,
-    description: "An explanation about the purpose of this instance.",
+    title: `Field title`,
+    description: "An explanation about the purpose of this field.",
   };
 };
 
@@ -176,6 +176,21 @@ export const createSchemaStore = (jsonSchema: JsonSchema) => {
             ...modifiedFieldSchema,
           };
 
+          /**
+           * Discard unnecessary schema keys for simple types.
+           * properties, required are only needed for objects
+           * examples are completely discared since we aren't handling those yet
+           */
+          if (
+            modifiedFieldSchema!.type === "string" || 
+            modifiedFieldSchema!.type === "number" || 
+            modifiedFieldSchema!.type === "boolean"
+          ) {
+            delete fieldSchema!.properties
+            delete fieldSchema!.required
+            delete fieldSchema!.examples
+          }
+          
           return jsonSchema;
         });
 

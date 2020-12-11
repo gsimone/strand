@@ -15,7 +15,7 @@ function makeSchemaOfType(type) {
   if (type === "string") {
     return {
       "type": "string",
-      "default": ""
+      "default": "",
     }
   }
 
@@ -52,11 +52,8 @@ function recognizeType(schema) {
 }
 
 function FieldDetails({ id, useSchema }: FieldDetailsProps) {
-
-  const useField = useStore(store => store.fields.get(id))!
-  const {name, setValue} = useField()
-
   const setFieldSchema = useSchema(store => store.setFieldSchema)
+  const { title, description } = useSchema(store => store.getFieldSchema(id))!
 
   /* Initial type for the field-type select */
   const initialType = React.useMemo(() => {
@@ -65,18 +62,11 @@ function FieldDetails({ id, useSchema }: FieldDetailsProps) {
       return recognizeType(schema)
     }
 
-    return ''
+    return 'string'
   }, [id, useSchema])
 
-  const handleNameChange = React.useCallback((e) => {
-    setValue({
-      name: e.target.value
-    })
-  }, [setValue])
- 
-  const handleTypeChange = React.useCallback((e) => {
-    setFieldSchema(id, makeSchemaOfType(e.target.value))
-  }, [setFieldSchema, id])
+  const handleChange = React.useCallback(key => e => setFieldSchema(id, { [key]: e.target.value }), [setFieldSchema, id])
+  const handleTypeChange = React.useCallback(e => setFieldSchema(id, makeSchemaOfType(e.target.value)), [setFieldSchema, id])
 
   return (
     <div className="mb-8">
@@ -95,10 +85,25 @@ function FieldDetails({ id, useSchema }: FieldDetailsProps) {
               bg-gray-700
               focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm 
               rounded-md" 
-              onChange={handleNameChange}
-            value={name} 
+              onChange={handleChange("title")}
+            value={title} 
           />
-  
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="fieldDescription" className="block text-sm font-medium text-gray-200">Description</label>
+          <input type="text" 
+            id="fieldDescription"
+            className="
+              mt-1 block w-full pl-3 pr-10 py-2 
+              text-base border-gray-900 
+              text-gray-100
+              bg-gray-700
+              focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm 
+              rounded-md" 
+              onChange={handleChange("description")}
+            value={description} 
+          />
         </div>
 
         <div>

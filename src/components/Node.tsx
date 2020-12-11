@@ -20,6 +20,8 @@ function Node({ useNode }: NodeProps) {
   const { id, name, fields, addField } = useNode();
   const [match, params] = useRoute("/nodes/:id")
 
+  const nodeId = id
+
   const nodeRef = useRef<HTMLDivElement>(null);
 
   const handleAddField = useCallback(() => {
@@ -55,14 +57,12 @@ function Node({ useNode }: NodeProps) {
                 </Link>
               </span>
             </div>
-
-           
           </div>
         </NodePosition>
 
       <div className="mt-2 p-2 ">
         {fields.map((id, i) => (
-          <Field id={id} key={id} useNode={useNode} />
+          <Field id={id} key={id} nodeId={nodeId} useNode={useNode} />
         ))}
         <button
           onClick={handleAddField}

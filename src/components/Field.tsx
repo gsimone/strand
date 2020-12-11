@@ -1,24 +1,23 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import Connector from "./Connector";
 
-import { ConnectorDirection, FieldStore, NodeStore } from "../store";
+import { ConnectorDirection, ID, NodeStore, SchemaStore } from "../store";
 import { useStore } from "../store";
 
 type FieldProps = {
-  useField: FieldStore;
+  id: ID;
+  useSchema: SchemaStore;
   useNode: NodeStore;
 };
 
-function Field({ useField, useNode }: FieldProps) {
+function Field({ id, useSchema, useNode }: FieldProps) {
   const nodeId = useNode((state) => state.id);
-  const { id, name, setValue } = useField();
   const removeField = useNode((state) => state.removeField);
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const setFieldSchema = useSchema(store => store.setFieldSchema)
+  const title = useSchema(store => store.getFieldSchema(id).title)
 
-  useEffect(() => {
-    return () => console.log("unmounting Field");
-  }, []);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -28,12 +27,11 @@ function Field({ useField, useNode }: FieldProps) {
 
   const handleNameChange = useCallback(
     (e) => {
-      const value = e.target.value;
-      setValue({
-        name: value,
+      setFieldSchema(id, {
+        title: e.target.value
       });
     },
-    [setValue]
+    [setFieldSchema, id]
   );
 
   return (
@@ -48,7 +46,7 @@ function Field({ useField, useNode }: FieldProps) {
           <input
             ref={inputRef}
             className="flex-1 p-1 px-2 bg-transparent"
-            value={name}
+            value={title}
             onChange={handleNameChange}
           />
           <button
@@ -69,11 +67,11 @@ function Field({ useField, useNode }: FieldProps) {
   );
 }
 
-export default function ConnectedField({ id, useNode }) {
-  const useField = useStore((state) => state.fields.get(id));
+export default function ConnectedField({ id, nodeId, useNode }) {
+  const useSchema = useStore(state => state.schemas.get(nodeId))!
 
-  if (typeof useField !== "undefined")
-    return <Field useField={useField} useNode={useNode} />;
+  if (typeof useSchema !== "undefined")
+    return <Field id={id} useSchema={useSchema} useNode={useNode} />;
 
   return null;
 }

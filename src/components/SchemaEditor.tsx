@@ -33,6 +33,8 @@ function SchemaEditor({ id }) {
   const handleChange = React.useCallback((newValue) => {
   }, []);
 
+  console.log('schema editor')
+
   /* Animations */
   const container = {
     visible: {
@@ -149,9 +151,10 @@ function SchemaEditor({ id }) {
 }
 
 function SchemaEditorModal() {
-  const id = "dull-zebra-38";
   const [match, params] = useRoute('/nodes/:id/schema')
-  const useNode = useStore((store) => store.nodes.get(id));
+  const useNode = useStore((store) => store.nodes.get(params!.id));
+
+  console.log('schema editor')
 
   if (typeof useNode === "undefined") return null;
 

@@ -27,26 +27,17 @@ export type Node = NodeValues & {
 
 export type NodeStore = UseStore<Node>;
 
-export const createNode = (id, name) =>
+export const createNode = (id, name, fields = []) =>
   {
     
     const store = create<Node>((set, get) => {
     return {
       id,
       name: name || id,
-      fields: [],
+      fields,
       addField: (id, name, value) => {
         const nodeId = get().id
         const fieldID = id || uuid();
-        const field = createField(fieldID, name, value);
-
-        // @TODO create an action in the main state for this
-        useStore.setState(
-          p((state) => {
-            state.fields.set(fieldID, field);
-            return state;
-          })
-        );
 
         // add a property to schema
         useStore.getState().schemas.get(nodeId)?.getState().addField(fieldID)

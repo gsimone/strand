@@ -16,7 +16,6 @@ export type Position = number[];
 
 export type StateFromJson = {
   nodes: Record<ID, Record<string, any>>;
-  fields: Record<ID, Record<string, any>>;
   positions: Record<ID, number[]>;
   connections: Array<string[]>;
   schemas: Record<ID, JsonSchema>
@@ -25,7 +24,6 @@ export type StateFromJson = {
 export type State = {
   nodes: Map<ID, NodeStore>;
   positions: Map<ID, Position>;
-  fields: Map<ID, FieldStore>;
   schemas: Map<ID, SchemaStore>
   connections: Connection[];
 
@@ -61,7 +59,6 @@ export const useStore = create<State>((set, get) => {
       set({
         nodes: new Map(),
         positions: new Map(),
-        fields: new Map(),
         schemas: new Map(),
         connections: [],
       })
@@ -183,15 +180,9 @@ export const useStore = create<State>((set, get) => {
     active: undefined,
     setActive: (id) => set({ active: id }),
     serialize: () => {
-      const { nodes, positions, fields, connections, schemas } = get();
+      const { nodes, positions, connections, schemas } = get();
 
       const _nodes = Array.from(nodes).reduce((acc, [_, x]) => {
-        const { id, ...theRest } = x.getState().pick();
-        acc[id] = theRest;
-        return acc;
-      }, {})
-
-      const _fields = Array.from(fields).reduce((acc, [_, x]) => {
         const { id, ...theRest } = x.getState().pick();
         acc[id] = theRest;
         return acc;
@@ -210,30 +201,17 @@ export const useStore = create<State>((set, get) => {
 
       return { 
         nodes: _nodes,
-        fields: _fields,
         connections,
         positions: _positions,
         schemas: _schemas
       }
     },
     setInitialState: (initValues) => {
-      const { nodes, fields, connections, positions, schemas } = initValues;
+      const { nodes, connections, positions, schemas } = initValues;
 
       const initializedNodes = Object.entries(nodes).map(([id, node]: any) => {
-        const _fields = node.fields.reduce((acc, fieldId) => {
-          const _field = fields[fieldId];
-          if (_field) {
-            acc.push({ id: fieldId, ..._field });
-          }
 
-          return acc;
-        }, []);
-
-        const _node = createNode(id, node.name);
-
-        _fields.forEach((field) =>
-          _node.getState().addField(field.id, field.name, field.value)
-        );
+        const _node = createNode(id, node.name, node.fields);
 
         return { node: _node };
       });
@@ -243,18 +221,21 @@ export const useStore = create<State>((set, get) => {
         p((store) => {
           initializedNodes.forEach(({ node }) => {
             const { id } = node.getState();
-
             store.positions.set(id, positions[id] || [100, 100]);
             store.nodes.set(id, node);
-
-            schemas && schemas[id] && store.schemas.set(id, createSchemaStore(schemas[id]))
           });
+          
+          Object.entries(schemas).forEach(([id, serializedSchema]) => {
+            // @ts-ignore
+            store.schemas.set(id, createSchemaStore(serializedSchema))
+          }) 
 
           store.connections = connections || [];
 
           return store;
         })
       );
+
       useConnectionStore.getState().reset();
     },
   };

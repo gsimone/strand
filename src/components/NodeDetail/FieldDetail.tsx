@@ -1,54 +1,10 @@
 import * as React from 'react'
-
-import { ID, SchemaStore, useStore } from "../store";
-import { Link } from 'wouter';
-import { createFileSchema } from '../store/schema';
+import { recognizeType, makeSchemaOfType } from 'utils'
+import { ID, SchemaStore } from "store";
 
 type FieldDetailsProps = {
   useSchema: SchemaStore,
   id: ID
-}
-
-// this function will probably need to be different
-function makeSchemaOfType(type) {
-
-  if (type === "string") {
-    return {
-      "type": "string",
-      "default": "",
-    }
-  }
-
-  if (type === "number") {
-    return {
-      type,
-      default: 0
-    }
-  }
-
-  if (type === "file") {
-    return createFileSchema("lorem-ipsum")
-  }
-
-  return {
-    type: "object",
-    default: {}
-  }
-
-}
-
-function recognizeType(schema) {
-  if (schema.type === "object") {
-    if (typeof schema.properties === "undefined") return "object"
-    if (schema.properties.hasOwnProperty("key") && schema.properties.hasOwnProperty("bucket")) {
-      return "file"
-    }
-
-    return "object"
-  }
-
-  return schema.type
-
 }
 
 function FieldDetails({ id, useSchema }: FieldDetailsProps) {
@@ -133,59 +89,4 @@ function FieldDetails({ id, useSchema }: FieldDetailsProps) {
   )
 }
 
-function NodeTitle({ useSchema, id }) {
-  const {title} = useSchema(store => store.jsonSchema)
-  
-  return <div className="mb-8">
-    <div className="flex justify-between items-center">
-      <h2 className="text-2xl font-bold">{title}</h2>
-      <Link href="/">
-        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-        <a>Close</a>
-      </Link>
-    </div>
-    <Link href={`${id}/schema`}>
-      {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-      <a className="hover:underline">Edit Node schema</a>
-    </Link>
-  </div>
-}
-
-type NodeDetailFooterProps = {
-  id: ID;
-}
-
-function NodeDetailFooter({ id }: NodeDetailFooterProps) {
-
-  const removeNode = useStore(state => state.removeNode)
-  const handleDelete = React.useCallback(() => {
-      if (window.confirm("Do you really want to delete this node?")) {
-        removeNode(id)
-      }
-  }, [removeNode, id])
-
-  return <div className="bg-gray-900 p-2 text-gray-500 flex justifyend sticky bottom-0">
-    <button onClick={handleDelete}>
-      Delete this node
-    </button>
-  </div>
-
-}
-
-
-function NodeDetails({ id }) {
-  const useSchema = useStore(store => store.schemas.get(id))!
-  const {properties} = useSchema(store => store.jsonSchema!)
-
-  return (<div className="flex flex-col h-full overflow-y-scroll">
-    <div className="flex-1 p-4">
-    <NodeTitle useSchema={useSchema} id={id} />
-
-    {Object.keys(properties!).map(field => <FieldDetails key={field} id={field} useSchema={useSchema} />)}
-    </div>
-    
-    <NodeDetailFooter id={id} />
-  </div>)
-}
-
-export default NodeDetails
+export default FieldDetails

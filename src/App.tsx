@@ -41,7 +41,7 @@ function ConnectedNodeDetails({ id }) {
   initial={{ x: "100%" }}
   animate={{ x: "0%" }}
   transition={animationSpring}
-  className="h-screen bg-gray-800 text-white fixed right-0 top-0 bottom-0 overflow-y-scroll z-20 p-4" style={{width: 600}}>
+  className="h-screen bg-gray-800 text-white fixed right-0 top-0 bottom-0 overflow-hidden z-20" style={{width: 600}}>
    {node ? <NodeDetail id={id} key={id} /> : <>Node not found</>}
   </motion.div>
 }

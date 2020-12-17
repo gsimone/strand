@@ -151,14 +151,40 @@ function NodeTitle({ useSchema, id }) {
   </div>
 }
 
+type NodeDetailFooterProps = {
+  id: ID;
+}
+
+function NodeDetailFooter({ id }: NodeDetailFooterProps) {
+
+  const removeNode = useStore(state => state.removeNode)
+  const handleDelete = React.useCallback(() => {
+      if (window.confirm("Do you really want to delete this node?")) {
+        removeNode(id)
+      }
+  }, [removeNode, id])
+
+  return <div className="bg-gray-900 p-2 text-gray-500 flex justifyend sticky bottom-0">
+    <button onClick={handleDelete}>
+      Delete this node
+    </button>
+  </div>
+
+}
+
+
 function NodeDetails({ id }) {
   const useSchema = useStore(store => store.schemas.get(id))!
   const {properties} = useSchema(store => store.jsonSchema!)
 
-  return (<div>
+  return (<div className="flex flex-col h-full overflow-y-scroll">
+    <div className="flex-1 p-4">
     <NodeTitle useSchema={useSchema} id={id} />
 
     {Object.keys(properties!).map(field => <FieldDetails key={field} id={field} useSchema={useSchema} />)}
+    </div>
+    
+    <NodeDetailFooter id={id} />
   </div>)
 }
 

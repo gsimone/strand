@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React from "react";
 
 import { Link, useRoute } from 'wouter';
 
@@ -17,7 +17,6 @@ type NodeProps = {
 };
 
 function Node({ useSchema, id }: NodeProps) {
-  const removeNode = useStore(state => state.removeNode)
   const addField = useSchema(state => state.addField)
 
   const name = useSchema(store => store.jsonSchema!.title)
@@ -52,10 +51,6 @@ function Node({ useSchema, id }: NodeProps) {
             <span>{name}</span>
 
             <div className="space-x-2 flex">
-              <span className="w-4 h-4">
-                <button tabIndex={-1} onClick={() => removeNode(id)}>X</button>
-              </span>
-                
               <span className="w-4 h-4">
                 <Link href={`/nodes/${id}`}>
                   <a href={`/nodes/${id}`}><Edit /></a>

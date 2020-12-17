@@ -14,13 +14,11 @@ import { Link, useLocation, useRoute } from 'wouter';
 
 const ajv = new Ajv({ allErrors: true, verbose: true });
 
-function SchemaEditor({ id }) {
-  const useNode = useStore((store) => store.nodes.get(id))!;
-  const useSchema = useStore((store) => store.schemas.get(id))!;
+function SchemaEditor({ id, useSchema }) {
 
-  const {name} = useNode()
-  
+  const name = useSchema(schema => schema.jsonSchema.title)
   const jsonSchema = useSchema((state) => state.jsonSchema);
+
   const editorRef = React.useRef();
 
   React.useEffect(() => {
@@ -32,8 +30,6 @@ function SchemaEditor({ id }) {
 
   const handleChange = React.useCallback((newValue) => {
   }, []);
-
-  console.log('schema editor')
 
   /* Animations */
   const container = {
@@ -152,13 +148,11 @@ function SchemaEditor({ id }) {
 
 function SchemaEditorModal() {
   const [match, params] = useRoute('/nodes/:id/schema')
-  const useNode = useStore((store) => store.nodes.get(params!.id));
+  const useSchema = useStore(store => store.schemas.get(params!.id))
 
-  console.log('schema editor')
+  if (typeof useSchema === "undefined") return null;
 
-  if (typeof useNode === "undefined") return null;
-
-  return match ? <SchemaEditor id={params!.id} /> : null
+  return match ? <SchemaEditor id={params!.id} useSchema={useSchema} /> : null
 }
 
 export default SchemaEditorModal;

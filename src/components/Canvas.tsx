@@ -113,7 +113,7 @@ export default function Canvas() {
       }}
     >
       {connections.map((connection, i) => (
-        <Strand key={connection.join(".")} connection={connection} />
+        <Strand key={connection.join(".") + i} connection={connection} />
       ))}
       {connecting && <TempLine />}
     </svg>

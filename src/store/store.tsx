@@ -1,12 +1,10 @@
 import create from "zustand";
 import p from "immer";
 
-import { createNode, NodeStore } from "./node";
 import { useConnectionStore, Connection } from "./connection";
-import { Connector } from "./connector";
+import { Connector, ConnectorDirection } from "./connector";
 
 import { makeConnectorId } from "../utils";
-import { createField, FieldStore, FieldValues } from "./field";
 import { ID } from "./index";
 
 import { uuid } from "../utils"
@@ -15,14 +13,12 @@ import { SchemaStore, createDefaultSchema, createSchemaStore, JsonSchema } from 
 export type Position = number[];
 
 export type StateFromJson = {
-  nodes: Record<ID, Record<string, any>>;
   positions: Record<ID, number[]>;
   connections: Array<string[]>;
   schemas: Record<ID, JsonSchema>
 };
 
 export type State = {
-  nodes: Map<ID, NodeStore>;
   positions: Map<ID, Position>;
   schemas: Map<ID, SchemaStore>
   connections: Connection[];
@@ -35,8 +31,6 @@ export type State = {
   setPosition: (id: ID, position: Position) => void;
   addNode: (
     id?: ID,
-    name?: string,
-    fields?: FieldValues[],
     position?: Array<number>
   ) => void;
   removeNode: (id: ID) => void;
@@ -45,19 +39,18 @@ export type State = {
   setActive: (id: ID) => void;
   serialize: () => any;
   setInitialState: (initValues: StateFromJson) => void;
+  removeNodeConnections: (nodeId: ID) => void;
+  removeFieldConnections: (fieldID: ID, nodeID: ID) => void;
 };
 
 export const useStore = create<State>((set, get) => {
   return {
-    nodes: new Map(),
     positions: new Map(),
-    fields: new Map(),
     schemas: new Map(),
     connections: [],
 
     reset: () => {
       set({
-        nodes: new Map(),
         positions: new Map(),
         schemas: new Map(),
         connections: [],
@@ -98,61 +91,65 @@ export const useStore = create<State>((set, get) => {
         })
       );
     },
-    addNode: (id, name, fields, position) => {
-      const n = id || uuid();
-      const node = createNode(n, name);
-      const schema = createSchemaStore(createDefaultSchema())
-
-      if (fields && fields.length > 0) {
-        
-        fields.forEach((field) =>
-          node.getState().addField(field.id, field.name, field.value)
-        );
-        
-      } else {
-
-        const id = uuid()
-        const field = createField(id, "name", id)
-
-        node.getState().addField(id)
-
-        schema.getState().addField(id)
-        
-        set(p(store => {
-          store.fields.set(id, field)
-          return store
-        }))
-
-      }
-
-
+    addNode: (id = uuid(), position = [100, 100]) => {
+      
       set(
         p((store) => {
-          store.positions.set(n, position || [100, 100]);
-          store.nodes.set(n, node);
+          store.positions.set(id, position);
 
-          store.schemas.set(n, schema)
-          
-          store.active = n;
+          const schema = createSchemaStore(createDefaultSchema())
+          store.schemas.set(id, schema)
+
+          store.active = id;
           return store;
         })
       );
     },
+    removeFieldConnections: (fieldId: ID, nodeID: ID) => {
+      const { connections } = useStore.getState();
+
+      set(p(state => {
+
+        state.connections = connections.filter(([connectionInput, connectionOutput]) => {
+          const connectionString = [connectionInput, connectionOutput].join('_')
+          return connectionString.indexOf(`${fieldId}`) === -1
+        })
+
+        return state
+
+      }))
+
+    },
+    removeNodeConnections: (nodeId: ID) => {
+      const { connections, schemas } = useStore.getState();
+      const { properties } = schemas.get(nodeId)!.getState().jsonSchema!
+      
+      const possibleConnections = Object.keys(properties!).reduce((acc, field) => {
+        acc.push(makeConnectorId({ node: nodeId, field, direction: ConnectorDirection.input}))
+        acc.push(makeConnectorId({ node: nodeId, field, direction: ConnectorDirection.output}))
+        return acc
+      }, [] as string[])
+      
+      const newConnections = connections.filter(([connectionIn, connectionOut]) => !(possibleConnections.includes(connectionIn)||possibleConnections.includes(connectionOut)))
+      
+      useStore.setState(
+        p((state) => {
+          state.connections = newConnections
+          return state;
+        })
+      );
+    },
     removeNode: (id) => {
-      const { nodes } = get()
-      const node = nodes.get(id)
-      if (node) {
-        const { removeConnections, removeFields } = node.getState()
-        removeConnections()
-        removeFields()
-      }
+      const { removeNodeConnections } = get()
+      removeNodeConnections(id)
 
       set(
         p((store) => {
-          store.nodes.delete(id);
+          
           store.positions.delete(id);
           store.schemas.delete(id);
 
+          /* Unset active so that the sidebar closes */
           store.active = null;
           return store;
         })
@@ -160,7 +157,8 @@ export const useStore = create<State>((set, get) => {
     },
 
     removeField: (id) => {
-      const {connections, removeConnection} = get()
+
+      const { connections, removeConnection } = get()
       
       connections.forEach((connection: Connection) => {
         // join the two ends of the connection since we only care if the field id is any of them
@@ -170,23 +168,12 @@ export const useStore = create<State>((set, get) => {
         }
       });
 
-      set(p(store => {
-        store.fields.delete(id)
-        return store
-      }))
-
     },
 
     active: undefined,
     setActive: (id) => set({ active: id }),
     serialize: () => {
-      const { nodes, positions, connections, schemas } = get();
-
-      const _nodes = Array.from(nodes).reduce((acc, [_, x]) => {
-        const { id, ...theRest } = x.getState().pick();
-        acc[id] = theRest;
-        return acc;
-      }, {})
+      const { positions, connections, schemas } = get();
 
       const _positions = Array.from(positions).reduce((acc, [id, position]) => {
         acc[id] = position
@@ -200,29 +187,18 @@ export const useStore = create<State>((set, get) => {
       }, {})
 
       return { 
-        nodes: _nodes,
         connections,
         positions: _positions,
         schemas: _schemas
       }
     },
     setInitialState: (initValues) => {
-      const { nodes, connections, positions, schemas } = initValues;
-
-      const initializedNodes = Object.entries(nodes).map(([id, node]: any) => {
-
-        const _node = createNode(id, node.name, node.fields);
-
-        return { node: _node };
-      });
-      
+      const { connections, positions, schemas } = initValues;
 
       set(
         p((store) => {
-          initializedNodes.forEach(({ node }) => {
-            const { id } = node.getState();
+          Object.keys(schemas).forEach((id) => {
             store.positions.set(id, positions[id] || [100, 100]);
-            store.nodes.set(id, node);
           });
           
           Object.entries(schemas).forEach(([id, serializedSchema]) => {

@@ -1,19 +1,24 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import Connector from "./Connector";
 
-import { ConnectorDirection, ID, NodeStore, SchemaStore } from "../store";
+import { ConnectorDirection, ID, SchemaStore } from "../store";
 import { useStore } from "../store";
 
 type FieldProps = {
   id: ID;
+  nodeId: ID;
   useSchema: SchemaStore;
-  useNode: NodeStore;
 };
 
-function Field({ id, useSchema, useNode }: FieldProps) {
-  const nodeId = useNode((state) => state.id);
-  const removeField = useNode((state) => state.removeField);
+function Field({ id, nodeId, useSchema }: FieldProps) {
+  const removeField = useSchema(state => state.removeField)
+  const removeConnections = useStore(state => state.removeFieldConnections)
 
+  const handleRemove = useCallback(() => {
+    removeConnections(id, nodeId)
+    removeField(id)
+  }, [removeConnections, removeField, id, nodeId])
+  
   const setFieldSchema = useSchema(store => store.setFieldSchema)
   const title = useSchema(store => store.getFieldSchema(id).title)
 
@@ -52,7 +57,7 @@ function Field({ id, useSchema, useNode }: FieldProps) {
           <button
             tabIndex={-1}
             className="font-bold text-red-600 text-xs absolute right-0 mr-3 opacity-0 group-hover:opacity-100"
-            onClick={() => removeField(id)}
+            onClick={handleRemove}
           >
             Delete
           </button>
@@ -67,11 +72,11 @@ function Field({ id, useSchema, useNode }: FieldProps) {
   );
 }
 
-export default function ConnectedField({ id, nodeId, useNode }) {
+export default function ConnectedField({ id, nodeId }) {
   const useSchema = useStore(state => state.schemas.get(nodeId))!
 
   if (typeof useSchema !== "undefined")
-    return <Field id={id} useSchema={useSchema} useNode={useNode} />;
+    return <Field id={id} useSchema={useSchema} nodeId={nodeId} />;
 
   return null;
 }

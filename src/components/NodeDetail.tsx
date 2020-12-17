@@ -133,12 +133,12 @@ function FieldDetails({ id, useSchema }: FieldDetailsProps) {
   )
 }
 
-function NodeTitle({ useNode }) {
-  const {name, id} = useNode()
+function NodeTitle({ useSchema, id }) {
+  const {title} = useSchema(store => store.jsonSchema)
   
   return <div className="mb-8">
     <div className="flex justify-between items-center">
-      <h2 className="text-2xl font-bold">{name}</h2>
+      <h2 className="text-2xl font-bold">{title}</h2>
       <Link href="/">
         {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
         <a>Close</a>
@@ -152,14 +152,13 @@ function NodeTitle({ useNode }) {
 }
 
 function NodeDetails({ id }) {
-  const useNode = useStore(store => store.nodes.get(id))!
-  const fields = useNode(state => state.fields)
   const useSchema = useStore(store => store.schemas.get(id))!
+  const {properties} = useSchema(store => store.jsonSchema!)
 
   return (<div>
-    <NodeTitle useNode={useNode} />
+    <NodeTitle useSchema={useSchema} id={id} />
 
-    {fields.map(field => <FieldDetails key={field} id={field} useSchema={useSchema} />)}
+    {Object.keys(properties!).map(field => <FieldDetails key={field} id={field} useSchema={useSchema} />)}
   </div>)
 }
 

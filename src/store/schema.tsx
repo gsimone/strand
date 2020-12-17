@@ -3,6 +3,7 @@ import create, { UseStore } from "zustand";
 import p from "immer";
 
 import { ID } from "./index";
+import { uuid } from '../utils';
 
 export enum SchemaStatus {
   VALID,
@@ -49,17 +50,24 @@ export const createFileSchema = id => ({
   "additionalProperties":true
 })
 
-export const createDefaultSchema = () => ({
-  "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "http://example.com/example.json",
-  "type": "object",
-  "title": "The root schema",
-  "description": "The root schema comprises the entire JSON document.",
-  "default": {},
-  "properties": {
-  },
-  "additionalProperties": true
-})
+export const createDefaultSchema = () => {
+
+    const id = uuid()
+    const field = createDefaultFieldSchema(id)
+    
+    return {
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "title": "The root schema",
+    "description": "The root schema comprises the entire JSON document.",
+    "default": {},
+    "properties": {
+      [id]: field
+    },
+    "additionalProperties": true
+  }
+}
 
 export const createDefaultFieldSchema = (key) => {
   return {
@@ -89,7 +97,7 @@ export type Schema = {
   status: SchemaStatus;
 
   set: (newSchema: JsonSchema | string) => void;
-  addField: (id: ID) => void;
+  addField: (id?: ID) => void;
   removeField: (id: ID) => void;
 
   getFieldSchema: (id: ID) => JsonSchema;
@@ -151,10 +159,12 @@ export const createSchemaStore = (jsonSchema: JsonSchema) => {
         );
       },
       addField: (id) => {
+        const newId = id || uuid()
+        
         set(
           p((state) => {
             const { jsonSchema } = state;
-            jsonSchema.properties[id] = createDefaultFieldSchema(id);
+            jsonSchema.properties[newId] = createDefaultFieldSchema(newId);
             return state;
           })
         );

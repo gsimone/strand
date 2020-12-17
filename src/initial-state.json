@@ -1,29 +1,38 @@
 {
-  "nodes": {
-    "mulino": {
-      "name": "mulino",
-      "fields": [
-        "nasty-dog-19",
-        "ordinary-turkey-67"
-      ]
-    },
-    "forno": {
-      "name": "forno",
-      "fields": [
-        "tricky-grasshopper-92",
-        "warm-fish-91"
-      ]
-    }
-  },
-  "connections": [],
+  "connections": [
+    [
+      "mulino_nasty-dog-19_OUTPUT",
+      "forno_tricky-grasshopper-92_INPUT"
+    ],
+    [
+      "friendly-swan-49_serious-mole-21_OUTPUT",
+      "forno_warm-fish-91_INPUT"
+    ],
+    [
+      "cuddly-wombat-17_purple-turtle-24_OUTPUT",
+      "mulino_nasty-dog-19_INPUT"
+    ],
+    [
+      "cuddly-wombat-17_tall-pig-29_OUTPUT",
+      "friendly-swan-49_serious-mole-21_INPUT"
+    ]
+  ],
   "positions": {
     "mulino": [
-      51,
-      148
+      397,
+      142
     ],
     "forno": [
-      441,
-      152
+      748,
+      224
+    ],
+    "friendly-swan-49": [
+      401,
+      437
+    ],
+    "cuddly-wombat-17": [
+      42,
+      239
     ]
   },
   "schemas": {
@@ -68,6 +77,46 @@
           "$id": "#/properties/warm-fish-91",
           "type": "string",
           "title": "ID Lotto",
+          "description": "An explanation about the purpose of this field."
+        }
+      },
+      "additionalProperties": true
+    },
+    "friendly-swan-49": {
+      "$schema": "http://json-schema.org/draft-07/schema",
+      "$id": "http://example.com/example.json",
+      "type": "object",
+      "title": "The root schema",
+      "description": "The root schema comprises the entire JSON document.",
+      "default": {},
+      "properties": {
+        "serious-mole-21": {
+          "$id": "#/properties/serious-mole-21",
+          "type": "string",
+          "title": "Field title",
+          "description": "An explanation about the purpose of this field."
+        }
+      },
+      "additionalProperties": true
+    },
+    "cuddly-wombat-17": {
+      "$schema": "http://json-schema.org/draft-07/schema",
+      "$id": "http://example.com/example.json",
+      "type": "object",
+      "title": "The root schema",
+      "description": "The root schema comprises the entire JSON document.",
+      "default": {},
+      "properties": {
+        "purple-turtle-24": {
+          "$id": "#/properties/purple-turtle-24",
+          "type": "string",
+          "title": "Field title",
+          "description": "An explanation about the purpose of this field."
+        },
+        "tall-pig-29": {
+          "$id": "#/properties/tall-pig-29",
+          "type": "string",
+          "title": "Field title",
           "description": "An explanation about the purpose of this field."
         }
       },

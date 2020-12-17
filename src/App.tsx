@@ -13,7 +13,7 @@ import SchemaEditorModal from "components/SchemaEditor";
 import { motion } from 'framer-motion';
 
 function Nodes() {
-  const nodes = useStore((store) => store.nodes);
+  const nodes = useStore((store) => store.schemas);
 
   useEffect(() => {
     const { setInitialState } = useStore.getState();
@@ -30,7 +30,7 @@ function Nodes() {
 }
 
 function ConnectedNodeDetails({ id }) {
-  const node = useStore(store => store.nodes.get(id))
+  const node = useStore(store => store.schemas.get(id))
 
   const animationSpring = {
     type: "tween",

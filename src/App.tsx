@@ -11,6 +11,7 @@ import initialState from "./initial-state.json"
 import { useRoute } from 'wouter';
 import SchemaEditorModal from "components/SchemaEditor";
 import { motion } from 'framer-motion';
+import { Toaster } from "react-hot-toast";
 
 function Nodes() {
   const nodes = useStore((store) => store.schemas);
@@ -65,6 +66,7 @@ function App() {
       "
     >
       <div>
+        <Toaster position={"bottom-center"} />
         <Canvas />
         <Nodes />
       </div>

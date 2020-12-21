@@ -1,25 +1,67 @@
 import * as React from "react";
 import { JsonEditor as Editor } from "jsoneditor-react";
-import {motion} from 'framer-motion'
+import { motion } from 'framer-motion'
+
+import { useLocation, useRoute } from 'wouter';
+import clsx from "clsx";
+import toast from "react-hot-toast";
 
 import ace from "brace";
 import "brace/mode/json";
 import "brace/theme/dracula";
 
 import Ajv from "ajv";
-
 import "jsoneditor-react/es/editor.min.css";
+
+import jsonSchemaSchema from '../schema.json'
+
 import { useStore } from "../store";
-import { Link, useLocation, useRoute } from 'wouter';
 
 const ajv = new Ajv({ allErrors: true, verbose: true });
+
+/* Animation settings */
+const container = {
+  visible: {
+    transition: {
+      when: "beforeChildren",
+    },
+  },
+  hidden: {
+    transition: {
+      when: "afterChildren",
+    },
+  },
+}
+
+const background = {
+  visible: { opacity: 1 },
+  hidden: { opacity: 0 },
+}
+
+const modal = {
+  visible: { opacity: 1, scale: 1, y: 0, z: 1, transition: {
+    when: "beforeChildren",
+    type: "tween",
+    ease: "backInOut"
+  }, },
+  hidden: { opacity: 0, scale: .85, y: 20, z: 1, transition: {
+    when: "afterChildren",
+  }, },
+}
+
+const modalContent = {
+  visible: { y: 0, opacity: 1, z: 1 },
+  hidden: { y: 10, opacity: 0, z: 1 }
+}
+
 
 function SchemaEditor({ id, useSchema }) {
 
   const name = useSchema(schema => schema.jsonSchema.title)
   const jsonSchema = useSchema((state) => state.jsonSchema);
+  const setSchema = useSchema(state => state.set)
 
-  const editorRef = React.useRef();
+  const editorRef = React.useRef(null);
 
   React.useEffect(() => {
     if (editorRef.current) {
@@ -28,48 +70,67 @@ function SchemaEditor({ id, useSchema }) {
     }
   }, [jsonSchema]);
 
-  const handleChange = React.useCallback((newValue) => {
-  }, []);
+  const [touched, setTouched] = React.useState(false)
+  const [error, setError] = React.useState(false)
 
-  /* Animations */
-  const container = {
-    visible: {
-      transition: {
-        when: "beforeChildren",
-      },
-    },
-    hidden: {
-      transition: {
-        when: "afterChildren",
-      },
-    },
-  }
+  const handleChange = React.useCallback(() => {
+    const _editor = editorRef.current! as any
+    setTouched(true)
 
-  const background = {
-    visible: { opacity: 1 },
-    hidden: { opacity: 0 },
-  }
-  
-  const modal = {
-    visible: { opacity: 1, scale: 1, y: 0, z: 1, transition: {
-      when: "beforeChildren",
-      type: "tween",
-      ease: "backInOut"
-    }, },
-    hidden: { opacity: 0, scale: .85, y: 20, z: 1, transition: {
-      when: "afterChildren",
-    }, },
-  }
+    if (_editor.err) { 
+      setError(true)
+    } else { 
+      setError(false)
+    }
 
-  const modalContent = {
-    visible: { y: 0, opacity: 1, z: 1 },
-    hidden: { y: 10, opacity: 0, z: 1 }
-  }
+    ajv.validateSchema(_editor.jsonEditor.get())
+    if (ajv.errors) {
+      setError(true)
+    }
+
+  }, [setTouched, setError]);
 
   // routing
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setLocation] = useLocation()
   const backLink = `/nodes/${id}`
+
+  const handleClose = React.useCallback(() => {
+
+    if (touched) {
+      if (window.confirm("Close without saving?")) {
+        setLocation(backLink)
+      }
+    } else {
+      setLocation(backLink)
+    }
+    
+  }, [touched, setLocation, backLink])
+
+  const handleSave = React.useCallback(() => {
+
+    const _editor = editorRef.current! as any 
+    
+    if (error) {
+      window.alert("You can't save an invalid schema.")
+      return
+    }
+
+    if (!touched) { 
+      setLocation(backLink)
+      return
+    }
+
+    try {
+      setSchema(_editor.jsonEditor.get())
+      toast.success('Successfully saved new schema!')
+      
+      setLocation(backLink)
+    } catch (err) {
+      toast.error('Successfully toasted!')
+    }
+
+  }, [error, touched, setLocation, setSchema, backLink])
 
   return (
     <motion.div initial="hidden" animate="visible" className="fixed z-20 inset-0 overflow-y-auto" variants={container}>
@@ -78,7 +139,7 @@ function SchemaEditor({ id, useSchema }) {
           className="fixed inset-0"
           aria-hidden="true"
           variants={background}
-          onClick={() => setLocation(backLink)}
+          onClick={handleClose}
         >
           <div className="absolute inset-0 bg-black" style={{ opacity: .8 }}></div>
         </motion.div>
@@ -101,7 +162,7 @@ function SchemaEditor({ id, useSchema }) {
             <h4 className="font-bold">{name}</h4>
             <h2 className="text-2xl font-bold">Edit schema</h2>
             <div className="mt-3 sm:mt-5">
-              <div className="mt-2">
+              <div className="mt-2" onKeyUp={handleChange}>
                 <Editor
                   htmlElementProps={{
                     style: {
@@ -113,29 +174,32 @@ function SchemaEditor({ id, useSchema }) {
                   ace={ace}
                   value={jsonSchema}
                   ajv={ajv}
+                  schema={jsonSchemaSchema}
                   theme="ace/theme/dracula"
                   mode={Editor.modes.code}
                   onChange={handleChange}
-                  on
                 />
               </div>
             </div>
             <div className="mt-5 sm:mt-6 flex items-center justify-end space-x-4">
-              <div>
-                Status: Valid
-              </div>
+              {/* <div>
+                Status: {error ? "Error" : "Valid"}
+              </div> */}
+
+              <button 
+                onClick={handleClose}
+                className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-transparent text-base font-medium text-white hover:border-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm">
+                Close
+              </button>
               
-              <Link href={backLink}>
-                {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-                <a>
-                  <button
-                    type="button"
-                    className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
-                  >
-                    Save and go back
-                  </button>
-                </a>
-              </Link>
+              <button
+                onClick={handleSave}
+                disabled={error}
+                type="button"
+                className={clsx("inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm", error && "opacity-25 cursor-not-allowed")}
+              >
+                Save and go back
+              </button>
             </div>
           </motion.div>
           

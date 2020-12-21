@@ -146,7 +146,8 @@ export const createSchemaStore = (jsonSchema: JsonSchema) => {
 
           set({ status: SchemaStatus.VALID, jsonSchema: parsedSchema });
         } catch (err) {
-          set({ status: SchemaStatus.INVALID, error: err });
+          // set({ status: SchemaStatus.INVALID, error: err });
+          throw err;
         }
       },
       removeField: (id) => {

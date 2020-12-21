@@ -6,7 +6,6 @@ import FieldDetail from './FieldDetail'
 import Footer from './Footer'
 import Title from './Title'
 
-
 function NodeDetails({ id }) {
   const useSchema = useStore(store => store.schemas.get(id))!
   const {properties} = useSchema(store => store.jsonSchema!)

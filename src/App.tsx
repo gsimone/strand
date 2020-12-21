@@ -3,18 +3,21 @@ import React, { useEffect } from "react";
 import Node from "./components/Node";
 import Canvas from "./components/Canvas";
 import Toolbar from "./components/Toolbar";
+import NodeDetail from "./components/NodeDetail";
 
 import { useStore } from "./store";
 
 import initialState from "./initial-state.json"
-import { useRoute, Link } from 'wouter';
+import { useRoute } from 'wouter';
+import SchemaEditorModal from "components/SchemaEditor";
+import { motion } from 'framer-motion';
+import { Toaster } from "react-hot-toast";
 
 function Nodes() {
-  const nodes = useStore((store) => store.nodes);
+  const nodes = useStore((store) => store.schemas);
 
   useEffect(() => {
     const { setInitialState } = useStore.getState();
-    // @ts-expect-error
     setInitialState(initialState);
   }, []);
 
@@ -27,24 +30,25 @@ function Nodes() {
   );
 }
 
-function NodeDetails({ id }) {
-  const useNode = useStore(store => store.nodes.get(id))!
-  const node = useNode()
-  
-  return <>{node.fields.map(field => <div key={field}>{field}</div>)}</>
-}
-
-
 function ConnectedNodeDetails({ id }) {
-  const node = useStore(store => store.nodes.get(id))
+  const node = useStore(store => store.schemas.get(id))
 
-  return  <div className="h-screen w-64 bg-gray-900 text-white fixed right-0 top-0 z-20 p-4">
-   <h3>Edit {id} - <Link href="/"><a href="/">Close</a></Link></h3>
-   {node ? <NodeDetails id={id} /> : <>Node not found</>}
-  </div>
+  const animationSpring = {
+    type: "tween",
+    ease: [0.87, 0, 0.13, 1]
+  }
+  
+  return  <motion.div
+  initial={{ x: "100%" }}
+  animate={{ x: "0%" }}
+  transition={animationSpring}
+  className="h-screen bg-gray-800 text-white fixed right-0 top-0 bottom-0 overflow-hidden z-20" style={{width: 600}}>
+   {node ? <NodeDetail id={id} key={id} /> : <>Node not found</>}
+  </motion.div>
 }
 
 function App() {
+  const [matchesEditor] = useRoute("/nodes/:id/schema");
   const [match, params] = useRoute("/nodes/:id");
 
   return (
@@ -62,6 +66,7 @@ function App() {
       "
     >
       <div>
+        <Toaster position={"bottom-center"} />
         <Canvas />
         <Nodes />
       </div>
@@ -69,6 +74,7 @@ function App() {
       {(match && params) && <ConnectedNodeDetails id={params.id}></ConnectedNodeDetails>}
       
       <Toolbar />
+      {matchesEditor && <SchemaEditorModal />}
     </div>
   );
 }

@@ -6,12 +6,18 @@
     "@craco/craco": "^5.6.4",
     "@types/react": "^16.9.49",
     "@types/react-dom": "^16.9.8",
+    "ajv": "^6.12.6",
     "autoprefixer": "^9.8.6",
+    "brace": "^0.11.1",
     "clsx": "^1.1.1",
     "cssnano": "^4.1.10",
+    "framer-motion": "^2.9.5",
     "history": "^5.0.0",
     "human-readable-ids": "^1.0.4",
     "immer": "^8.0.0",
+    "jsoneditor": "^9.1.4",
+    "jsoneditor-react": "^3.1.0",
+    "jsonschema": "^1.4.0",
     "lodash.debounce": "^4.0.8",
     "lodash.omit": "^4.5.0",
     "lodash.pick": "^4.4.0",
@@ -21,6 +27,7 @@
     "pretty-quick": "^3.0.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-hot-toast": "^1.0.0",
     "react-scripts": "3.4.3",
     "react-tooltip": "^4.2.9",
     "tailwindcss": "^1.8.9",
@@ -34,9 +41,6 @@
     "test": "craco test",
     "eject": "craco eject",
     "ncu": "npx npm-check-updates"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
   },
   "browserslist": {
     "production": [

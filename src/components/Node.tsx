@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React from "react";
 
 import { Link, useRoute } from 'wouter';
 
@@ -9,19 +9,26 @@ import clsx from "clsx";
 import Edit from "icons/edit";
 import CircleAdd from "icons/circle-add";
 
-import { useStore, NodeStore } from '../store';
+import { useStore, SchemaStore, ID } from '../store';
 
 type NodeProps = {
-  useNode: NodeStore;
+  useSchema: SchemaStore;
+  id: ID
 };
 
-function Node({ useNode }: NodeProps) {
-  const { id, name, fields, addField } = useNode();
+function Node({ useSchema, id }: NodeProps) {
+  const addField = useSchema(state => state.addField)
+
+  const name = useSchema(store => store.jsonSchema!.title)
+  const fields = useSchema(store => store.jsonSchema!.properties)!
+
   const [match, params] = useRoute("/nodes/:id")
 
-  const nodeRef = useRef<HTMLDivElement>(null);
+  const nodeId = id
 
-  const handleAddField = useCallback(() => {
+  const nodeRef = React.useRef<HTMLDivElement>(null);
+
+  const handleAddField = React.useCallback(() => {
     addField();
   }, [addField]);
 
@@ -43,17 +50,19 @@ function Node({ useNode }: NodeProps) {
           <div className="flex justify-between text-xs font-bold py-2 pb-1 px-4 bg-gray-100 text-gray-800" >
             <span>{name}</span>
 
-            <span className="w-4 h-4">
-              <Link href={`/nodes/${id}`}>
-                <a href={`/nodes/${id}`}><Edit /></a>
-              </Link>
-            </span>
+            <div className="space-x-2 flex">
+              <span className="w-4 h-4">
+                <Link href={`/nodes/${id}`}>
+                  <a href={`/nodes/${id}`}><Edit /></a>
+                </Link>
+              </span>
+            </div>
           </div>
         </NodePosition>
 
       <div className="mt-2 p-2 ">
-        {fields.map((id, i) => (
-          <Field id={id} key={id} useNode={useNode} />
+        {Object.keys(fields).map((id, i) => (
+          <Field id={id} key={id} nodeId={nodeId} />
         ))}
         <button
           onClick={handleAddField}
@@ -67,9 +76,9 @@ function Node({ useNode }: NodeProps) {
 }
 
 export default function ConnectedNode({ id }) {
-  const useNode = useStore((store) => store.nodes.get(id));
+  const useSchema = useStore(store => store.schemas.get(id))
 
-  if (typeof useNode !== "undefined") return <Node useNode={useNode!} />;
+  if (typeof useSchema !== "undefined") return <Node id={id} useSchema={useSchema!} />;
 
   return null;
 }

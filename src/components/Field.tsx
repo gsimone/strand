@@ -1,24 +1,28 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import Connector from "./Connector";
 
-import { ConnectorDirection, FieldStore, NodeStore } from "../store";
+import { ConnectorDirection, ID, SchemaStore } from "../store";
 import { useStore } from "../store";
 
 type FieldProps = {
-  useField: FieldStore;
-  useNode: NodeStore;
+  id: ID;
+  nodeId: ID;
+  useSchema: SchemaStore;
 };
 
-function Field({ useField, useNode }: FieldProps) {
-  const nodeId = useNode((state) => state.id);
-  const { id, name, setValue } = useField();
-  const removeField = useNode((state) => state.removeField);
+function Field({ id, nodeId, useSchema }: FieldProps) {
+  const removeField = useSchema(state => state.removeField)
+  const removeConnections = useStore(state => state.removeFieldConnections)
+
+  const handleRemove = useCallback(() => {
+    removeConnections(id, nodeId)
+    removeField(id)
+  }, [removeConnections, removeField, id, nodeId])
+  
+  const setFieldSchema = useSchema(store => store.setFieldSchema)
+  const title = useSchema(store => store.getFieldSchema(id).title)
 
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    return () => console.log("unmounting Field");
-  }, []);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -28,12 +32,11 @@ function Field({ useField, useNode }: FieldProps) {
 
   const handleNameChange = useCallback(
     (e) => {
-      const value = e.target.value;
-      setValue({
-        name: value,
+      setFieldSchema(id, {
+        title: e.target.value
       });
     },
-    [setValue]
+    [setFieldSchema, id]
   );
 
   return (
@@ -48,13 +51,13 @@ function Field({ useField, useNode }: FieldProps) {
           <input
             ref={inputRef}
             className="flex-1 p-1 px-2 bg-transparent"
-            value={name}
+            value={title}
             onChange={handleNameChange}
           />
           <button
             tabIndex={-1}
             className="font-bold text-red-600 text-xs absolute right-0 mr-3 opacity-0 group-hover:opacity-100"
-            onClick={() => removeField(id)}
+            onClick={handleRemove}
           >
             Delete
           </button>
@@ -69,11 +72,11 @@ function Field({ useField, useNode }: FieldProps) {
   );
 }
 
-export default function ConnectedField({ id, useNode }) {
-  const useField = useStore((state) => state.fields.get(id));
+export default function ConnectedField({ id, nodeId }) {
+  const useSchema = useStore(state => state.schemas.get(nodeId))!
 
-  if (typeof useField !== "undefined")
-    return <Field useField={useField} useNode={useNode} />;
+  if (typeof useSchema !== "undefined")
+    return <Field id={id} useSchema={useSchema} nodeId={nodeId} />;
 
   return null;
 }
